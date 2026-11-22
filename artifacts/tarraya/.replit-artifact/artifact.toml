@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Tarraya / تريّا"
+description = "An Arabic-first link safety checker that reviews URLs without opening them, offers clearly labeled demonstrations, and provides safe next steps in Arabic or English."
+version = "1.0.0"
+id = "artifacts/tarraya"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25607
+
+[services.development]
+run = "pnpm --filter @workspace/tarraya run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tarraya", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/tarraya/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25607"
+BASE_PATH = "/"
