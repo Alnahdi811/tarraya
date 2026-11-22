@@ -20,6 +20,10 @@ Add these exact keys in **Replit Secrets**, never source control or chat:
 | `TWILIO_AUTH_TOKEN` | That account's Auth Token; **not** an API Key Secret. Used by the official SDK for signature validation and outbound messages |
 | `TWILIO_WHATSAPP_FROM` | The Sandbox sender shown in Twilio, including `whatsapp:` and the `+` country code |
 
+Common phone formatting (spaces, parentheses and hyphens) is normalized.
+An international number without `whatsapp:` or `+` is also accepted and given
+the canonical prefix; a missing country code is never guessed.
+
 The connected Twilio integration currently supports reads but not form-encoded
 outbound message creation. The official `twilio` SDK therefore uses Secrets for
 sends and signature validation. Credentials must all belong to the same account.

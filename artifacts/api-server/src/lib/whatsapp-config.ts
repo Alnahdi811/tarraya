@@ -5,10 +5,18 @@ export interface WhatsappConfig {
   webhookUrl: string;
 }
 
+export function normalizeWhatsappSender(value: string): string {
+  const number = value.trim().replace(/^whatsapp:\s*/i, "").replace(/[\s()-]/g, "");
+  if (/^\+?[1-9]\d{6,14}$/.test(number)) {
+    return `whatsapp:${number.startsWith("+") ? number : `+${number}`}`;
+  }
+  return value.trim();
+}
+
 function readWhatsappConfig(): { config: WhatsappConfig | null; invalidFields: string[] } {
   const accountSid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? "";
   const authToken = process.env.TWILIO_AUTH_TOKEN?.trim() ?? "";
-  const from = process.env.TWILIO_WHATSAPP_FROM?.trim() ?? "";
+  const from = normalizeWhatsappSender(process.env.TWILIO_WHATSAPP_FROM ?? "");
   const webhookUrl = process.env.TWILIO_WEBHOOK_URL?.trim() ?? "";
   const invalidFields: string[] = [];
   if (!/^AC[\da-f]{32}$/i.test(accountSid)) invalidFields.push("TWILIO_ACCOUNT_SID");

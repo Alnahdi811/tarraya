@@ -11,6 +11,7 @@ import { createWhatsappStore, type JobPayload } from "../src/lib/whatsapp-store"
 import { createWhatsappProcessor } from "../src/lib/whatsapp-worker";
 import { analyzeDomainLink } from "../src/lib/link-analysis";
 import { extractUrls, formatWhatsappResult, messageLanguage } from "../src/lib/whatsapp-message";
+import { normalizeWhatsappSender } from "../src/lib/whatsapp-config";
 
 // Synthetic credentials are used only to sign local test requests. No Twilio or AI calls.
 const config = {
@@ -39,6 +40,9 @@ test("URL extraction and language handle punctuation, duplicates, Arabic and Eng
   assert.equal(messageLanguage("افحص FAB https://notice.example/"), "ar");
   assert.equal(messageLanguage("Please check https://notice.example/"), "en");
   assert.equal(messageLanguage("https://notice.example/"), "ar");
+  assert.equal(normalizeWhatsappSender("whatsapp: +1 (555) 000-0000"), "whatsapp:+15550000000");
+  assert.equal(normalizeWhatsappSender("15550000000"), "whatsapp:+15550000000");
+  assert.equal(normalizeWhatsappSender("not-a-number"), "not-a-number");
 });
 
 test("signed webhooks use canonical HTTPS, reject tampering, acknowledge once and handle URL counts", async () => {
