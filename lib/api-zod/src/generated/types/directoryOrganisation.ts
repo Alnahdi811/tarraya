@@ -6,13 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface OrganisationMatch {
+export interface DirectoryOrganisation {
   name: string;
-  officialDomain: string;
+  category: string;
+  hostname: string;
   sourceUrl: string;
   /**
      * Verification date in YYYY-MM-DD format
      * @pattern ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
      */
-  dateVerified: string;
+  verificationDate: string;
 }

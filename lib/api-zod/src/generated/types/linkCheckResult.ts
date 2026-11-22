@@ -5,12 +5,12 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { DirectoryCheck } from './directoryCheck';
 import type { LinkCheckEvidence } from './linkCheckEvidence';
 import type { LinkCheckNextStep } from './linkCheckNextStep';
 import type { LinkCheckResultAssessment } from './linkCheckResultAssessment';
 import type { LinkCheckResultDisclaimerCode } from './linkCheckResultDisclaimerCode';
 import type { LinkCheckResultLanguage } from './linkCheckResultLanguage';
-import type { OrganisationMatch } from './organisationMatch';
 
 export interface LinkCheckResult {
   assessment: LinkCheckResultAssessment;
@@ -18,7 +18,7 @@ export interface LinkCheckResult {
   host: string;
   /** @nullable */
   registrableDomain: string | null;
-  organisationMatch: OrganisationMatch | null;
+  directoryCheck: DirectoryCheck;
   evidence: LinkCheckEvidence[];
   nextStep: LinkCheckNextStep;
   disclaimerCode: LinkCheckResultDisclaimerCode;

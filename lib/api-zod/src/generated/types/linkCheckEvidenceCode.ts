@@ -18,7 +18,8 @@ export const LinkCheckEvidenceCode = {
   pressure_words: 'pressure_words',
   password_request: 'password_request',
   official_domain_match: 'official_domain_match',
-  domain_unverified: 'domain_unverified',
+  organisation_hostname_mismatch: 'organisation_hostname_mismatch',
+  organisation_unidentified: 'organisation_unidentified',
   reserved_example_domain: 'reserved_example_domain',
   no_clear_indicators: 'no_clear_indicators',
 } as const;

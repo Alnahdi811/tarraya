@@ -33,7 +33,7 @@ export const CheckLinkBody = zod.object({
   "language": zod.enum(['ar', 'en'])
 })
 
-export const checkLinkResponseOrganisationMatchOneDateVerifiedRegExp = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+export const checkLinkResponseDirectoryCheckOrganisationOneVerificationDateRegExp = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
 
 
 export const CheckLinkResponse = zod.object({
@@ -41,14 +41,19 @@ export const CheckLinkResponse = zod.object({
   "language": zod.enum(['ar', 'en']),
   "host": zod.string(),
   "registrableDomain": zod.string().nullable(),
-  "organisationMatch": zod.union([zod.object({
+  "directoryCheck": zod.object({
+  "code": zod.enum(['exact_match', 'hostname_not_listed', 'insufficient_information']),
+  "message": zod.string(),
+  "organisation": zod.union([zod.object({
   "name": zod.string(),
-  "officialDomain": zod.string(),
+  "category": zod.string(),
+  "hostname": zod.string(),
   "sourceUrl": zod.url(),
-  "dateVerified": zod.string().regex(checkLinkResponseOrganisationMatchOneDateVerifiedRegExp).describe('Verification date in YYYY-MM-DD format')
-}),zod.null()]),
+  "verificationDate": zod.string().regex(checkLinkResponseDirectoryCheckOrganisationOneVerificationDateRegExp).describe('Verification date in YYYY-MM-DD format')
+}),zod.null()])
+}),
   "evidence": zod.array(zod.object({
-  "code": zod.enum(['embedded_credentials', 'punycode_host', 'ip_address_host', 'url_shortener', 'insecure_http', 'pressure_words', 'password_request', 'official_domain_match', 'domain_unverified', 'reserved_example_domain', 'no_clear_indicators']),
+  "code": zod.enum(['embedded_credentials', 'punycode_host', 'ip_address_host', 'url_shortener', 'insecure_http', 'pressure_words', 'password_request', 'official_domain_match', 'organisation_hostname_mismatch', 'organisation_unidentified', 'reserved_example_domain', 'no_clear_indicators']),
   "detail": zod.string()
 })),
   "nextStep": zod.object({

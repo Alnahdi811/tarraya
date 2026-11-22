@@ -1,0 +1,30 @@
+[
+  {
+    "name": "First Abu Dhabi Bank (FAB)",
+    "category": "bank",
+    "hostname": "www.bankfab.com",
+    "sourceUrl": "https://www.bankfab.com/en-ae/personal",
+    "verificationDate": "2026-11-23"
+  },
+  {
+    "name": "Emirates NBD",
+    "category": "bank",
+    "hostname": "www.emiratesnbd.com",
+    "sourceUrl": "https://www.emiratesnbd.com/en",
+    "verificationDate": "2026-11-23"
+  },
+  {
+    "name": "Aramex",
+    "category": "courier",
+    "hostname": "www.aramex.com",
+    "sourceUrl": "https://www.aramex.com/ae/en/track/shipments",
+    "verificationDate": "2026-11-23"
+  },
+  {
+    "name": "Emirates Post",
+    "category": "postal_service",
+    "hostname": "www.emiratespost.ae",
+    "sourceUrl": "https://www.emiratespost.ae/all-services/track-a-package",
+    "verificationDate": "2026-11-23"
+  }
+]

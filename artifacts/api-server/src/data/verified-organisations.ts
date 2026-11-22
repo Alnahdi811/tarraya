@@ -1,13 +1,15 @@
+import officialDomains from "./official-domains.json" with { type: "json" };
+
 export interface VerifiedOrganisation {
   name: string;
-  officialDomains: string[];
+  category: string;
+  hostname: string;
   sourceUrl: string;
-  dateVerified: string;
+  verificationDate: string;
 }
 
 /**
- * Curated production directory. Add only organisations whose official domain
- * was checked against the cited source. Fictional examples belong in
+ * Typed view of the curated JSON directory. Fictional examples belong in
  * demo-organisations.ts and must never be copied here.
  */
-export const verifiedOrganisations: VerifiedOrganisation[] = [];
+export const verifiedOrganisations: VerifiedOrganisation[] = officialDomains;

@@ -106,10 +106,8 @@ components:
           type: string
         registrableDomain:
           type: ["string", "null"]
-        organisationMatch:
-          oneOf:
-            - $ref: "#/components/schemas/OrganisationMatch"
-            - type: "null"
+        directoryCheck:
+          $ref: "#/components/schemas/DirectoryCheck"
         evidence:
           type: array
           items:
@@ -119,22 +117,37 @@ components:
         disclaimerCode:
           type: string
           enum: [text_only, domain_match_is_not_safety]
-      required: [assessment, language, host, registrableDomain, organisationMatch, evidence, nextStep, disclaimerCode]
-    OrganisationMatch:
+      required: [assessment, language, host, registrableDomain, directoryCheck, evidence, nextStep, disclaimerCode]
+    DirectoryCheck:
+      type: object
+      properties:
+        code:
+          type: string
+          enum: [exact_match, hostname_not_listed, insufficient_information]
+        message:
+          type: string
+        organisation:
+          oneOf:
+            - $ref: "#/components/schemas/DirectoryOrganisation"
+            - type: "null"
+      required: [code, message, organisation]
+    DirectoryOrganisation:
       type: object
       properties:
         name:
           type: string
-        officialDomain:
+        category:
+          type: string
+        hostname:
           type: string
         sourceUrl:
           type: string
           format: uri
-        dateVerified:
+        verificationDate:
           type: string
           pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
           description: Verification date in YYYY-MM-DD format
-      required: [name, officialDomain, sourceUrl, dateVerified]
+      required: [name, category, hostname, sourceUrl, verificationDate]
     LinkCheckEvidence:
       type: object
       properties:
@@ -149,7 +162,8 @@ components:
             - pressure_words
             - password_request
             - official_domain_match
-            - domain_unverified
+            - organisation_hostname_mismatch
+            - organisation_unidentified
             - reserved_example_domain
             - no_clear_indicators
         detail:

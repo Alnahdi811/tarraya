@@ -13,6 +13,10 @@ import {
 } from "../data/verified-organisations";
 
 type Language = LinkCheckInput["language"];
+type DirectoryCheckCode =
+  | "exact_match"
+  | "hostname_not_listed"
+  | "insufficient_information";
 
 const shortenerHosts = new Set([
   "bit.ly",
@@ -41,9 +45,10 @@ const evidenceText: Record<
     pressure_words: "تتضمن الرسالة كلمات تضغط لاتخاذ إجراء سريع.",
     password_request: "تطلب الرسالة كلمة مرور أو رمزاً سرياً.",
     official_domain_match:
-      "يطابق النطاق {domain} نطاقاً مدرجاً للجهة {name}، لكن ذلك لا يثبت سلامة الرابط أو الرسالة.",
-    domain_unverified:
-      "لم يظهر النطاق ضمن دليل الجهات الموثّقة الحالي؛ اعتبره غير موثّق.",
+      "يطابق اسم النطاق المدخل المدرج للجهة {name}، لكن ذلك لا يثبت سلامة الرابط أو الرسالة.",
+    organisation_hostname_mismatch:
+      "اسم النطاق هذا غير مدرج للجهة المذكورة في الرسالة.",
+    organisation_unidentified: "المعلومات غير كافية.",
     reserved_example_domain:
       "هذا نطاق ‎.example محجوز للأمثلة ولا يمثل جهة حقيقية.",
     no_clear_indicators:
@@ -58,9 +63,10 @@ const evidenceText: Record<
     pressure_words: "The message uses language that pressures you to act quickly.",
     password_request: "The message asks for a password or secret sign-in code.",
     official_domain_match:
-      "The domain {domain} matches a listed domain for {name}; this does not prove the link or message is safe.",
-    domain_unverified:
-      "This domain is not in the current verified organisation directory, so treat it as unverified.",
+      "The hostname matches a listed entry for {name}; this does not prove the link or message is safe.",
+    organisation_hostname_mismatch:
+      "This hostname isn't listed for the organisation named in the message.",
+    organisation_unidentified: "Insufficient information.",
     reserved_example_domain:
       "This .example domain is reserved for examples and does not represent a real organisation.",
     no_clear_indicators:
@@ -86,6 +92,20 @@ const nextStepText: Record<Language, Record<LinkCheckNextStepCode, string>> = {
       "Ask the sender using a contact method you already know; do not rely on details in a suspicious message.",
   },
 };
+
+const directoryCheckText = {
+  ar: {
+    exact_match: "اسم النطاق يطابق مدخل الدليل.",
+    hostname_not_listed: "اسم النطاق هذا غير مدرج للجهة المذكورة في الرسالة.",
+    insufficient_information: "المعلومات غير كافية.",
+  },
+  en: {
+    exact_match: "Hostname matches the directory entry.",
+    hostname_not_listed:
+      "This hostname isn't listed for the organisation named in the message.",
+    insufficient_information: "Insufficient information.",
+  },
+} as const;
 
 const reservedExampleHost = (host: string) =>
   host === "example" || host.endsWith(".example");
@@ -113,77 +133,93 @@ function validateDirectory(directory: readonly VerifiedOrganisation[]): void {
   for (const record of directory) {
     if (
       !record.name.trim() ||
-      !record.officialDomains.length ||
-      !/^\d{4}-\d{2}-\d{2}$/.test(record.dateVerified) ||
-      new Date(`${record.dateVerified}T00:00:00.000Z`)
+      !record.category.trim() ||
+      !record.hostname ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(record.verificationDate) ||
+      new Date(`${record.verificationDate}T00:00:00.000Z`)
         .toISOString()
-        .slice(0, 10) !== record.dateVerified
+        .slice(0, 10) !== record.verificationDate
     ) {
       throw new Error("Verified organisation directory contains an invalid record.");
     }
 
     const source = new URL(record.sourceUrl);
-    if (source.protocol !== "https:") {
+    if (
+      source.protocol !== "https:" ||
+      source.username ||
+      source.password
+    ) {
       throw new Error("Verified organisation sources must use HTTPS.");
     }
 
-    for (const rawDomain of record.officialDomains) {
-      const domain = rawDomain.toLowerCase();
-      const registrable = getRegistrableDomain(domain);
-      const publicSuffixData = parse(domain, { allowPrivateDomains: true });
-      const isDelegatedPublicSuffixDomain =
-        !registrable &&
-        publicSuffixData.publicSuffix === domain &&
-        (publicSuffixData.isIcann === true ||
-          publicSuffixData.isPrivate === true) &&
-        domain.split(".").length >= 3;
-      if (
-        rawDomain !== domain ||
-        domain.endsWith(".") ||
-        reservedExampleHost(domain) ||
-        (registrable !== domain && !isDelegatedPublicSuffixDomain)
-      ) {
-        throw new Error(
-          `Verified directory domain must be a registrable root domain: ${rawDomain}`,
-        );
-      }
+    const hostname = record.hostname.toLowerCase();
+    const hostnameUrl = new URL(`https://${record.hostname}`);
+    const suffixInfo = parse(hostname, { allowPrivateDomains: true });
+    if (
+      record.hostname !== hostname ||
+      hostname.endsWith(".") ||
+      hostnameUrl.hostname !== hostname ||
+      hostnameUrl.pathname !== "/" ||
+      hostnameUrl.search ||
+      hostnameUrl.hash ||
+      isIP(hostname) ||
+      reservedExampleHost(hostname) ||
+      (!getRegistrableDomain(hostname) && !suffixInfo.publicSuffix)
+    ) {
+      throw new Error(
+        `Verified directory hostname is invalid: ${record.hostname}`,
+      );
     }
   }
 }
 
-function findOrganisation(
-  host: string,
-  registrableDomain: string | null,
-  directory: readonly VerifiedOrganisation[],
-): { record: VerifiedOrganisation; officialDomain: string } | null {
-  for (const record of directory) {
-    for (const officialDomain of record.officialDomains) {
-      const officialRegistrableDomain = getRegistrableDomain(officialDomain);
-      const ordinaryRegistrableMatch =
-        officialRegistrableDomain !== null &&
-        registrableDomain === officialRegistrableDomain;
-      const delegatedSuffixMatch =
-        officialRegistrableDomain === null &&
-        (host === officialDomain || host.endsWith(`.${officialDomain}`));
-      if (ordinaryRegistrableMatch || delegatedSuffixMatch) {
-        return { record, officialDomain };
-      }
-    }
-  }
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
-  return null;
+function messageNamesOrganisation(
+  message: string,
+  organisation: VerifiedOrganisation,
+): boolean {
+  const parentheticalNames = Array.from(
+    organisation.name.matchAll(/\(([^)]+)\)/g),
+    (match) => match[1],
+  );
+  const names = [
+    organisation.name,
+    organisation.name.replace(/\s*\([^)]*\)/g, "").trim(),
+    ...parentheticalNames,
+  ].filter(Boolean);
+  const normalizedMessage = message.normalize("NFKC");
+
+  return names.some((name) => {
+    const phrase = escapeRegExp(name.normalize("NFKC"));
+    return new RegExp(
+      `(^|[^\\p{L}\\p{N}])${phrase}(?=$|[^\\p{L}\\p{N}])`,
+      "iu",
+    ).test(normalizedMessage);
+  });
+}
+
+function findNamedOrganisation(
+  message: string | undefined,
+  directory: readonly VerifiedOrganisation[],
+): VerifiedOrganisation | null {
+  if (!message?.trim()) return null;
+  const matches = directory.filter((organisation) =>
+    messageNamesOrganisation(message, organisation),
+  );
+  return matches.length === 1 ? matches[0] : null;
 }
 
 function localisedEvidence(
   language: Language,
   code: LinkCheckEvidenceCode,
-  match?: { name: string; officialDomain: string },
+  match?: { name: string },
 ): LinkCheckEvidence {
   let detail = evidenceText[language][code];
   if (match) {
-    detail = detail
-      .replace("{name}", match.name)
-      .replace("{domain}", match.officialDomain);
+    detail = detail.replace("{name}", match.name);
   }
   return { code, detail };
 }
@@ -235,7 +271,7 @@ export function analyzeLink(
     );
   }
 
-  const host = parsedUrl.hostname.toLowerCase().replace(/\.$/, "");
+  const host = parsedUrl.hostname.toLowerCase();
   if (!host) {
     throw new LinkAnalysisInputError(
       "invalid_url",
@@ -244,7 +280,14 @@ export function analyzeLink(
   }
 
   const registrableDomain = getRegistrableDomain(host);
-  const organisation = findOrganisation(host, registrableDomain, directory);
+  const identifiedOrganisation = findNamedOrganisation(input.message, directory);
+  const directoryCheckCode: DirectoryCheckCode = !identifiedOrganisation
+    ? "insufficient_information"
+    : host === identifiedOrganisation.hostname
+      ? "exact_match"
+      : "hostname_not_listed";
+  const hostnameMatchesOrganisation =
+    directoryCheckCode === "exact_match";
   const codes: LinkCheckEvidenceCode[] = [];
 
   if (parsedUrl.username || parsedUrl.password) {
@@ -268,10 +311,12 @@ export function analyzeLink(
   if (input.message && secretRequestPattern.test(input.message)) {
     codes.push("password_request");
   }
-  if (organisation) {
+  if (directoryCheckCode === "exact_match") {
     codes.push("official_domain_match");
+  } else if (directoryCheckCode === "hostname_not_listed") {
+    codes.push("organisation_hostname_mismatch");
   } else {
-    codes.push("domain_unverified");
+    codes.push("organisation_unidentified");
   }
   if (reservedExampleHost(host)) {
     codes.push("reserved_example_domain");
@@ -287,27 +332,26 @@ export function analyzeLink(
     "password_request",
   ]);
   const hasRiskIndicators = codes.some((code) => riskCodes.has(code));
-  if (!hasRiskIndicators && !organisation) {
+  if (!hasRiskIndicators && !hostnameMatchesOrganisation) {
     codes.push("no_clear_indicators");
   }
 
   const assessment: LinkCheckResult["assessment"] = hasRiskIndicators
     ? "suspicious"
-    : organisation
+    : hostnameMatchesOrganisation
       ? "official_domain_match"
       : "unverified";
   const nextStepCode: LinkCheckNextStepCode = hasRiskIndicators
     ? "do_not_open"
-    : organisation
+    : hostnameMatchesOrganisation
       ? "verify_official_channel"
       : input.message
         ? "contact_sender"
         : "verify_official_channel";
 
-  const matchInfo = organisation
+  const matchInfo = hostnameMatchesOrganisation && identifiedOrganisation
     ? {
-        name: organisation.record.name,
-        officialDomain: organisation.officialDomain,
+        name: identifiedOrganisation.name,
       }
     : undefined;
 
@@ -316,14 +360,19 @@ export function analyzeLink(
     language,
     host,
     registrableDomain,
-    organisationMatch: organisation
-      ? {
-          name: organisation.record.name,
-          officialDomain: organisation.officialDomain,
-          sourceUrl: organisation.record.sourceUrl,
-          dateVerified: organisation.record.dateVerified,
-        }
-      : null,
+    directoryCheck: {
+      code: directoryCheckCode,
+      message: directoryCheckText[language][directoryCheckCode],
+      organisation: identifiedOrganisation
+        ? {
+            name: identifiedOrganisation.name,
+            category: identifiedOrganisation.category,
+            hostname: identifiedOrganisation.hostname,
+            sourceUrl: identifiedOrganisation.sourceUrl,
+            verificationDate: identifiedOrganisation.verificationDate,
+          }
+        : null,
+    },
     evidence: codes.map((code) =>
       localisedEvidence(language, code, matchInfo),
     ),
@@ -331,7 +380,7 @@ export function analyzeLink(
       code: nextStepCode,
       instruction: nextStepText[language][nextStepCode],
     },
-    disclaimerCode: organisation
+    disclaimerCode: hostnameMatchesOrganisation
       ? "domain_match_is_not_safety"
       : "text_only",
   };

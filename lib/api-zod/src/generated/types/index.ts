@@ -7,6 +7,9 @@
  */
 
 export * from './apiError';
+export * from './directoryCheck';
+export * from './directoryCheckCode';
+export * from './directoryOrganisation';
 export * from './healthStatus';
 export * from './linkCheckEvidence';
 export * from './linkCheckEvidenceCode';
@@ -18,4 +21,3 @@ export * from './linkCheckResult';
 export * from './linkCheckResultAssessment';
 export * from './linkCheckResultDisclaimerCode';
 export * from './linkCheckResultLanguage';
-export * from './organisationMatch';

@@ -53,15 +53,31 @@ export const LinkCheckResultDisclaimerCode = {
   domain_match_is_not_safety: 'domain_match_is_not_safety',
 } as const;
 
-export interface OrganisationMatch {
+export type DirectoryCheckCode = typeof DirectoryCheckCode[keyof typeof DirectoryCheckCode];
+
+
+export const DirectoryCheckCode = {
+  exact_match: 'exact_match',
+  hostname_not_listed: 'hostname_not_listed',
+  insufficient_information: 'insufficient_information',
+} as const;
+
+export interface DirectoryOrganisation {
   name: string;
-  officialDomain: string;
+  category: string;
+  hostname: string;
   sourceUrl: string;
   /**
      * Verification date in YYYY-MM-DD format
      * @pattern ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
      */
-  dateVerified: string;
+  verificationDate: string;
+}
+
+export interface DirectoryCheck {
+  code: DirectoryCheckCode;
+  message: string;
+  organisation: DirectoryOrganisation | null;
 }
 
 export type LinkCheckEvidenceCode = typeof LinkCheckEvidenceCode[keyof typeof LinkCheckEvidenceCode];
@@ -76,7 +92,8 @@ export const LinkCheckEvidenceCode = {
   pressure_words: 'pressure_words',
   password_request: 'password_request',
   official_domain_match: 'official_domain_match',
-  domain_unverified: 'domain_unverified',
+  organisation_hostname_mismatch: 'organisation_hostname_mismatch',
+  organisation_unidentified: 'organisation_unidentified',
   reserved_example_domain: 'reserved_example_domain',
   no_clear_indicators: 'no_clear_indicators',
 } as const;
@@ -106,7 +123,7 @@ export interface LinkCheckResult {
   host: string;
   /** @nullable */
   registrableDomain: string | null;
-  organisationMatch: OrganisationMatch | null;
+  directoryCheck: DirectoryCheck;
   evidence: LinkCheckEvidence[];
   nextStep: LinkCheckNextStep;
   disclaimerCode: LinkCheckResultDisclaimerCode;
