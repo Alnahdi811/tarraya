@@ -5,20 +5,31 @@ export interface WhatsappConfig {
   webhookUrl: string;
 }
 
-export function getWhatsappConfig(): WhatsappConfig | null {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  const from = process.env.TWILIO_WHATSAPP_FROM;
-  const webhookUrl = process.env.TWILIO_WEBHOOK_URL;
-  if (!accountSid || !authToken || !from || !webhookUrl) return null;
+function readWhatsappConfig(): { config: WhatsappConfig | null; invalidFields: string[] } {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? "";
+  const authToken = process.env.TWILIO_AUTH_TOKEN?.trim() ?? "";
+  const from = process.env.TWILIO_WHATSAPP_FROM?.trim() ?? "";
+  const webhookUrl = process.env.TWILIO_WEBHOOK_URL?.trim() ?? "";
+  const invalidFields: string[] = [];
+  if (!/^AC[\da-f]{32}$/i.test(accountSid)) invalidFields.push("TWILIO_ACCOUNT_SID");
+  if (!authToken) invalidFields.push("TWILIO_AUTH_TOKEN");
+  if (!/^whatsapp:\+[1-9]\d{6,14}$/.test(from)) invalidFields.push("TWILIO_WHATSAPP_FROM");
   try {
     const url = new URL(webhookUrl);
     if (url.protocol !== "https:" || url.username || url.password || url.hash ||
-      url.pathname !== "/api/whatsapp" || url.search ||
-      !/^AC[\da-f]{32}$/i.test(accountSid) ||
-      !/^whatsapp:\+[1-9]\d{6,14}$/.test(from)) return null;
+      url.pathname !== "/api/whatsapp" || url.search) invalidFields.push("TWILIO_WEBHOOK_URL");
   } catch {
-    return null;
+    invalidFields.push("TWILIO_WEBHOOK_URL");
   }
-  return { accountSid, authToken, from, webhookUrl };
+  return { config: invalidFields.length ? null : { accountSid, authToken, from, webhookUrl }, invalidFields };
+}
+
+export function getWhatsappConfig(): WhatsappConfig | null {
+  return readWhatsappConfig().config;
+}
+
+/** Safe operator diagnostics: reports key names only, never secret values. */
+export function getWhatsappConfigurationStatus(): { configured: boolean; invalidFields: string[] } {
+  const { config, invalidFields } = readWhatsappConfig();
+  return { configured: config !== null, invalidFields };
 }

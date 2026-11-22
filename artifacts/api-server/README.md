@@ -105,8 +105,10 @@ pnpm --filter @workspace/api-server run typecheck
 
 Tests use synthetic signed form requests and reserved `.example` URLs, a mocked
 AI/send worker (including slow analysis and ambiguous delivery), and isolated
-temporary rows in the development database for persistent deduplication/quota
+temporary schema in the development database for persistent deduplication/quota
 checks. They never call Twilio's send API or consume AI tokens.
+The live worker cannot see the isolated test queue, even when real credentials
+are configured.
 
 Real Sandbox delivery still requires Secrets, publishing, and a joined tester.
 

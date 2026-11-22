@@ -188,7 +188,20 @@ test("long AI explanations preserve the safe next step and directory source with
 });
 
 test("PostgreSQL persists duplicate receipts and atomically enforces per-sender limits", async () => {
-  const store = createWhatsappStore(() => config.authToken);
+  // Keep test jobs outside public.whatsapp_jobs: a concurrently running server
+  // with real credentials must never pick up synthetic tests for AI or delivery.
+  const schema = `whatsapp_test_${randomBytes(8).toString("hex")}`;
+  await pool.query(`CREATE SCHEMA "${schema}"`);
+  await pool.query(`CREATE TABLE "${schema}".whatsapp_jobs (LIKE public.whatsapp_jobs INCLUDING ALL)`);
+  const connect = async () => {
+    const client = await pool.connect();
+    await client.query(`SET search_path TO "${schema}"`);
+    const release = client.release.bind(client);
+    // Discard this connection so its test-only search_path cannot leak.
+    client.release = () => release(true);
+    return client;
+  };
+  const store = createWhatsappStore(() => config.authToken, connect);
   const ids: string[] = [];
   try {
     const receipt = sid(); ids.push(receipt);
@@ -201,12 +214,12 @@ test("PostgreSQL persists duplicate receipts and atomically enforces per-sender 
       assert.equal(await store.accept(id, {...payload, from:sender}), i < 5 ? "accepted" : "limited");
     }
     // A fresh repository instance also sees existing receipts (not an in-memory cache).
-    assert.equal(await createWhatsappStore(() => config.authToken).accept(ids[1], payload), "duplicate");
-    const rows = await pool.query("SELECT state,payload FROM whatsapp_jobs WHERE sid=$1", [ids[6]]);
+    assert.equal(await createWhatsappStore(() => config.authToken, connect).accept(ids[1], payload), "duplicate");
+    const rows = await pool.query(`SELECT state,payload FROM "${schema}".whatsapp_jobs WHERE sid=$1`, [ids[6]]);
     assert.equal(rows.rows[0].state, "sent");
     assert.equal(rows.rows[0].payload, null);
   } finally {
-    await pool.query("DELETE FROM whatsapp_jobs WHERE sid = ANY($1::text[])", [ids]);
+    await pool.query(`DROP SCHEMA "${schema}" CASCADE`);
   }
 });
 

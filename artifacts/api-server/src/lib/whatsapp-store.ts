@@ -9,13 +9,16 @@ export interface WhatsappStore {
   accept(sid: string, payload: JobPayload | null): Promise<"accepted" | "duplicate" | "limited">;
 }
 
-export function createWhatsappStore(quotaKey = () => process.env.TWILIO_AUTH_TOKEN): WhatsappStore {
+export function createWhatsappStore(
+  quotaKey = () => process.env.TWILIO_AUTH_TOKEN,
+  connect = () => pool.connect(),
+): WhatsappStore {
   return {
   async accept(sid, payload) {
     const quotaSecret = quotaKey();
     if (payload && !quotaSecret) throw new Error("WhatsApp quota key unavailable");
     const senderKey = payload ? createHmac("sha256", quotaSecret!).update(payload.from).digest("hex") : null;
-    const client = await pool.connect();
+    const client = await connect();
     try {
       await client.query("BEGIN");
       await client.query("SET LOCAL statement_timeout = '1500ms'");
