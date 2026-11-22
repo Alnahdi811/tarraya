@@ -13,6 +13,37 @@ tags:
   - name: link-check
     description: Safe text-only link assessment
 paths:
+  /whatsapp:
+    post:
+      operationId: receiveWhatsapp
+      tags: [link-check]
+      summary: Receive a signed Twilio WhatsApp Sandbox message
+      description: Validates the signature against the configured public HTTPS webhook URL and all form fields. Unique MessageSid values are durably recorded. Valid links are acknowledged immediately and analyzed asynchronously.
+      parameters:
+        - in: header
+          name: X-Twilio-Signature
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/WhatsappMessage"
+      responses:
+        "200":
+          description: TwiML reply or empty TwiML for a duplicate
+          content:
+            text/xml:
+              schema: { type: string }
+        "400":
+          description: Invalid form fields
+        "403":
+          description: Invalid signature or account
+        "415":
+          description: Form-encoded body required
+        "503":
+          description: Integration not configured or durable queue unavailable
   /healthz:
     get:
       operationId: healthCheck
@@ -71,6 +102,16 @@ paths:
                 $ref: "#/components/schemas/ApiError"
 components:
   schemas:
+    WhatsappMessage:
+      type: object
+      additionalProperties: true
+      required: [MessageSid, AccountSid, From, To, Body]
+      properties:
+        MessageSid: { type: string, pattern: "^SM[0-9a-fA-F]{32}$" }
+        AccountSid: { type: string, pattern: "^AC[0-9a-fA-F]{32}$" }
+        From: { type: string, pattern: "^whatsapp:\\+[1-9][0-9]{6,14}$" }
+        To: { type: string, pattern: "^whatsapp:\\+[1-9][0-9]{6,14}$" }
+        Body: { type: string, maxLength: 2000 }
     HealthStatus:
       type: object
       properties:

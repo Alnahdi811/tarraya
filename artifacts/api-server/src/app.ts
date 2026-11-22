@@ -28,7 +28,7 @@ app.use(
 );
 app.use(cors());
 app.use(express.json({ limit: "16kb" }));
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.urlencoded({ extended: false, limit: "16kb", parameterLimit: 100 }));
 
 app.use("/api", router);
 

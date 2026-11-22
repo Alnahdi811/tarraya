@@ -18,3 +18,8 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+TWILIO_WEBHOOK_URL = "https://tarraya-link-checker--Hmdlnhdy.replit.app/api/whatsapp"

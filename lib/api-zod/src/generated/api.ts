@@ -9,6 +9,33 @@ import * as zod from 'zod';
 
 
 /**
+ * Validates the signature against the configured public HTTPS webhook URL and all form fields. Unique MessageSid values are durably recorded. Valid links are acknowledged immediately and analyzed asynchronously.
+ * @summary Receive a signed Twilio WhatsApp Sandbox message
+ */
+export const ReceiveWhatsappHeader = zod.object({
+  "X-Twilio-Signature": zod.string()
+})
+
+export const receiveWhatsappBodyMessageSidRegExp = new RegExp('^SM[0-9a-fA-F]{32}$');
+export const receiveWhatsappBodyAccountSidRegExp = new RegExp('^AC[0-9a-fA-F]{32}$');
+export const receiveWhatsappBodyFromRegExp = new RegExp('^whatsapp:\\+[1-9][0-9]{6,14}$');
+export const receiveWhatsappBodyToRegExp = new RegExp('^whatsapp:\\+[1-9][0-9]{6,14}$');
+export const receiveWhatsappBodyBodyMax = 2000;
+
+
+
+export const ReceiveWhatsappBody = zod.object({
+  "MessageSid": zod.string().regex(receiveWhatsappBodyMessageSidRegExp),
+  "AccountSid": zod.string().regex(receiveWhatsappBodyAccountSidRegExp),
+  "From": zod.string().regex(receiveWhatsappBodyFromRegExp),
+  "To": zod.string().regex(receiveWhatsappBodyToRegExp),
+  "Body": zod.string().max(receiveWhatsappBodyBodyMax)
+})
+
+export const ReceiveWhatsappResponse = zod.unknown()
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:whatsapp": "tsx --test tests/whatsapp.test.ts",
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
@@ -21,6 +22,7 @@
     "pino": "^9.14.0",
     "pino-http": "^10.5.0",
     "tldts": "^7.5.5",
+    "twilio": "^6.3.1",
     "zod": "catalog:"
   },
   "devDependencies": {
@@ -31,6 +33,7 @@
     "esbuild": "0.28.2",
     "esbuild-plugin-pino": "^2.3.3",
     "pino-pretty": "^13.2.0",
-    "thread-stream": "3.1.0"
+    "thread-stream": "3.1.0",
+    "tsx": "^4.23.15"
   }
 }

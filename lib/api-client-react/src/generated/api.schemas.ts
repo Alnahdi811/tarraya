@@ -5,6 +5,20 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface WhatsappMessage {
+  /** @pattern ^SM[0-9a-fA-F]{32}$ */
+  MessageSid: string;
+  /** @pattern ^AC[0-9a-fA-F]{32}$ */
+  AccountSid: string;
+  /** @pattern ^whatsapp:\+[1-9][0-9]{6,14}$ */
+  From: string;
+  /** @pattern ^whatsapp:\+[1-9][0-9]{6,14}$ */
+  To: string;
+  /** @maxLength 2000 */
+  Body: string;
+  [key: string]: unknown;
+ }
+
 export interface HealthStatus {
   status: string;
 }

@@ -25,3 +25,4 @@ export * from './linkCheckResult';
 export * from './linkCheckResultAssessment';
 export * from './linkCheckResultDisclaimerCode';
 export * from './linkCheckResultLanguage';
+export * from './whatsappMessage';

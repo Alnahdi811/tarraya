@@ -28,7 +28,8 @@ import type {
   ApiError,
   HealthStatus,
   LinkCheckInput,
-  LinkCheckResult
+  LinkCheckResult,
+  WhatsappMessage
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -57,6 +58,101 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getReceiveWhatsappUrl = () => {
+
+
+
+
+  return `/api/whatsapp`
+}
+
+/**
+ * Validates the signature against the configured public HTTPS webhook URL and all form fields. Unique MessageSid values are durably recorded. Valid links are acknowledged immediately and analyzed asynchronously.
+ * @summary Receive a signed Twilio WhatsApp Sandbox message
+ */
+export const receiveWhatsapp = async (whatsappMessage: WhatsappMessage, options?: Parameters<typeof customFetch>[1]): Promise<string> => {
+    const formUrlEncoded = new URLSearchParams();
+formUrlEncoded.append(`MessageSid`, whatsappMessage.MessageSid);
+formUrlEncoded.append(`AccountSid`, whatsappMessage.AccountSid);
+formUrlEncoded.append(`From`, whatsappMessage.From);
+formUrlEncoded.append(`To`, whatsappMessage.To);
+formUrlEncoded.append(`Body`, whatsappMessage.Body);
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<string>(getReceiveWhatsappUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...getHeaders(options?.headers) },
+    body: formUrlEncoded
+  }
+);}
+
+
+
+
+
+export const getReceiveWhatsappMutationKey = () => ['receiveWhatsapp'] as const;
+
+export const getReceiveWhatsappMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiveWhatsapp>>, TError,ReceiveWhatsappMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof receiveWhatsapp>>, TError,ReceiveWhatsappMutationVariables, TContext> => {
+
+const mutationKey = getReceiveWhatsappMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof receiveWhatsapp>>, ReceiveWhatsappMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  receiveWhatsapp(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReceiveWhatsappMutationResult = NonNullable<Awaited<ReturnType<typeof receiveWhatsapp>>>
+    export type ReceiveWhatsappMutationBody = BodyType<WhatsappMessage>
+    export type ReceiveWhatsappMutationError = ErrorType<void>
+    export type ReceiveWhatsappMutationVariables = {data: BodyType<WhatsappMessage>}
+
+    /**
+ * @summary Receive a signed Twilio WhatsApp Sandbox message
+ */
+export const useReceiveWhatsapp = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiveWhatsapp>>, TError,ReceiveWhatsappMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof receiveWhatsapp>>,
+        TError,
+        ReceiveWhatsappMutationVariables,
+        TContext
+      > => {
+      return useMutation(getReceiveWhatsappMutationOptions(options), queryClient);
+    }
 
 export const getHealthCheckUrl = () => {
 
