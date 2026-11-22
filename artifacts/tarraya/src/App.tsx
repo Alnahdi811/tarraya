@@ -1,7 +1,10 @@
 import { type FormEvent, useEffect, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useAssessLink } from '@workspace/api-client-react';
-import type { LinkCheckResult } from '@workspace/api-client-react';
+import { useCheckLink } from '@workspace/api-client-react';
+import type {
+  LinkCheckResult,
+  LinkCheckResultAssessment,
+} from '@workspace/api-client-react';
 import { ArrowLeft, ArrowRight, CircleAlert, ClipboardCheck, ShieldCheck, Sparkles } from 'lucide-react';
 
 type Language = 'ar' | 'en';
@@ -42,9 +45,18 @@ const copy = {
     liveLabel: 'نتيجة الفحص',
     suspicious: 'توجد مؤشرات تستدعي الحذر',
     insufficient: 'لم تتوفر معلومات كافية',
+    assessment: {
+      suspicious: 'توجد مؤشرات تستدعي الحذر',
+      official_domain_match: 'النطاق مدرج للجهة، لكن ذلك لا يثبت سلامة الرابط',
+      unverified: 'هذا النطاق غير موثّق في الدليل الحالي',
+    },
     host: 'النطاق الذي جرى فحصه',
     reasons: 'لماذا ظهرت هذه النتيجة؟',
     next: 'الخطوة الأكثر أماناً',
+    directoryTitle: 'مطابقة دليل الجهات الموثّقة',
+    verifiedOn: 'تاريخ التحقق',
+    sourceLabel: 'مصدر التحقق',
+    matchSafetyNotice: 'مطابقة النطاق لا تعني أن الرابط أو الرسالة آمنان.',
     disclaimer: 'الفحص يراجع النص فقط ولا يفتح الرابط. هذه النتيجة ليست ضماناً لسلامة الرابط أو خطورته.',
     checkAgain: 'افحص رابطاً آخر',
     demoOnly: 'هذه نتيجة توضيحية مصطنعة — لم يُجرَ أي فحص مباشر لهذا الرابط.',
@@ -53,15 +65,18 @@ const copy = {
       punycode_host: 'اسم النطاق يستخدم ترميزاً قد يخفي أحرفاً متشابهة.',
       ip_address_host: 'الرابط يستخدم عنوان IP بدلاً من اسم نطاق مألوف.',
       url_shortener: 'الرابط مختصر، لذلك لا يظهر العنوان النهائي هنا.',
+      insecure_http: 'يستخدم الرابط اتصال HTTP غير المشفّر.',
       pressure_words: 'تتضمن الرسالة كلمات تضغط لاتخاذ إجراء سريع.',
       password_request: 'تطلب الرسالة كلمة مرور أو بيانات تسجيل دخول.',
+      official_domain_match: 'يطابق النطاق دليلاً موثّقاً لجهة رسمية، لكن ذلك لا يثبت سلامة الرابط أو الرسالة.',
+      domain_unverified: 'لم يظهر النطاق ضمن دليل الجهات الموثّقة الحالي.',
       reserved_example_domain: 'النطاق محجوز للأمثلة ولا يمثل جهة حقيقية.',
-      no_clear_red_flags: 'لم تظهر في النص مؤشرات خطر واضحة؛ هذا لا يثبت أن الرابط آمن.',
+      no_clear_indicators: 'لم تظهر في النص مؤشرات خطر واضحة؛ هذا لا يثبت أن الرابط آمن.',
     },
     nextStep: {
       do_not_open: 'لا تفتح الرابط. احذف الرسالة أو أبلغ عنها إذا لم تكن تتوقعها.',
-      verify_separately: 'تحقّق من الجهة عبر موقعها أو رقمها الرسمي الذي تبحث عنه بنفسك.',
-      ask_sender: 'اسأل المرسل عبر وسيلة تواصل تعرفها مسبقاً قبل المتابعة.',
+      verify_official_channel: 'تحقّق من الجهة عبر موقعها أو رقمها الرسمي الذي تبحث عنه بنفسك.',
+      contact_sender: 'اسأل المرسل عبر وسيلة تواصل تعرفها مسبقاً قبل المتابعة.',
     },
     demoReasons: {
       suspicious: 'تجمع الرسالة بين الاستعجال وطلب كلمة المرور، وهما مؤشّران يستحقان الحذر في هذا المثال المصطنع.',
@@ -106,9 +121,18 @@ const copy = {
     liveLabel: 'Assessment',
     suspicious: 'Signs call for caution',
     insufficient: 'Not enough information',
+    assessment: {
+      suspicious: 'Signs call for caution',
+      official_domain_match: 'Domain listed for this organisation — not a safety guarantee',
+      unverified: 'This domain is not verified in the current directory',
+    },
     host: 'Host reviewed',
     reasons: 'Why this result?',
     next: 'A safer next step',
+    directoryTitle: 'Verified directory match',
+    verifiedOn: 'Date verified',
+    sourceLabel: 'Verification source',
+    matchSafetyNotice: 'A domain match does not mean the link or message is safe.',
     disclaimer: 'This check reviews text only and does not open the link. It is not a guarantee that a link is safe or unsafe.',
     checkAgain: 'Check another link',
     demoOnly: 'This is a fabricated demonstration result — no live check was made for this link.',
@@ -117,15 +141,18 @@ const copy = {
       punycode_host: 'The host uses encoding that can disguise similar-looking characters.',
       ip_address_host: 'The link uses an IP address instead of a familiar domain name.',
       url_shortener: 'This is a shortened link, so its final destination is not visible here.',
+      insecure_http: 'The link uses an unencrypted HTTP connection.',
       pressure_words: 'The message uses words that pressure you to act quickly.',
       password_request: 'The message asks for a password or sign-in details.',
+      official_domain_match: 'The domain matches an entry in the verified directory, but this does not prove the link or message is safe.',
+      domain_unverified: 'This domain is not in the current verified organisation directory.',
       reserved_example_domain: 'This domain is reserved for examples and does not represent a real organisation.',
-      no_clear_red_flags: 'No clear warning signs appeared in the text; that does not prove the link is safe.',
+      no_clear_indicators: 'No clear warning signs appeared in the text; that does not prove the link is safe.',
     },
     nextStep: {
       do_not_open: 'Do not open the link. Delete or report the message if you were not expecting it.',
-      verify_separately: 'Verify with the organisation through an official website or number you find yourself.',
-      ask_sender: 'Ask the sender using a contact method you already know before proceeding.',
+      verify_official_channel: 'Verify with the organisation through an official website or number you find yourself.',
+      contact_sender: 'Ask the sender using a contact method you already know before proceeding.',
     },
     demoReasons: {
       suspicious: 'The message combines urgency with a password request, warning signs worth noticing in this fabricated example.',
@@ -166,7 +193,7 @@ function Tarraya() {
   const [url, setUrl] = useState('');
   const [message, setMessage] = useState('');
   const [resultView, setResultView] = useState<ResultView | null>(null);
-  const mutation = useAssessLink();
+  const mutation = useCheckLink();
   const t = copy[language];
   const isArabic = language === 'ar';
   const DirectionArrow = isArabic ? ArrowLeft : ArrowRight;
@@ -182,7 +209,7 @@ function Tarraya() {
     const cleanUrl = url.trim();
     if (!cleanUrl) return;
     mutation.mutate(
-      { data: { url: cleanUrl, ...(message.trim() ? { message: message.trim() } : {}) } },
+      { data: { url: cleanUrl, language, ...(message.trim() ? { message: message.trim() } : {}) } },
       { onSuccess: (result) => setResultView({ kind: 'live', result }), onError: () => setResultView(null) },
     );
     setResultView(null);
@@ -203,8 +230,8 @@ function Tarraya() {
     document.getElementById('link-url')?.focus();
   };
 
-  const displayedAssessment = resultView?.kind === 'demo'
-    ? resultView.id === 'suspicious' ? 'suspicious' : 'insufficient'
+  const displayedAssessment: LinkCheckResultAssessment | 'demo-insufficient' | 'demo-match' | undefined = resultView?.kind === 'demo'
+    ? resultView.id === 'suspicious' ? 'suspicious' : resultView.id === 'directory' ? 'demo-match' : 'demo-insufficient'
     : resultView?.result.assessment;
   const currentDemo = resultView?.kind === 'demo' ? resultView.id : null;
   const resultHost = currentDemo ? demoHosts[currentDemo] : resultView?.kind === 'live' ? resultView.result.host : '';
@@ -215,14 +242,23 @@ function Tarraya() {
       ? [t.demoReasons.insufficient]
       : currentDemo === 'suspicious'
         ? [t.demoReasons.suspicious]
-        : liveResult?.reasonCodes.map((code) => t.reason[code]) ?? [];
+        : liveResult?.evidence.map((item) => t.reason[item.code]) ?? [];
   const nextStep = currentDemo === 'directory'
     ? t.demoNext.directory
     : currentDemo === 'insufficient'
       ? t.demoNext.insufficient
       : currentDemo === 'suspicious'
         ? t.demoNext.suspicious
-        : liveResult ? t.nextStep[liveResult.nextStepCode] : '';
+        : liveResult ? t.nextStep[liveResult.nextStep.code] : '';
+  const assessmentTitle = currentDemo === 'directory'
+    ? t.demoMatched
+    : displayedAssessment === 'demo-insufficient'
+      ? t.insufficient
+      : displayedAssessment === 'demo-match'
+        ? t.demoMatched
+        : displayedAssessment
+          ? t.assessment[displayedAssessment]
+          : '';
 
   const onUrlChange = (value: string) => {
     setUrl(value);
@@ -316,11 +352,7 @@ function Tarraya() {
                   </span>
                   <div>
                     <p className="result-kicker">{currentDemo ? t.demoBadge : t.liveLabel}</p>
-                    <h2 className="result-title" id="result-title">
-                      {currentDemo === 'directory'
-                        ? t.demoMatched
-                        : displayedAssessment === 'suspicious' ? t.suspicious : t.insufficient}
-                    </h2>
+                    <h2 className="result-title" id="result-title">{assessmentTitle}</h2>
                   </div>
                 </div>
                 {currentDemo && <span className="demo-stamp" data-testid="badge-demo">{t.demoBadge}</span>}
@@ -332,21 +364,29 @@ function Tarraya() {
                   <ul className="reason-list" data-testid="list-result-reasons">
                     {reasons.map((reason, index) => <li key={`${index}-${reason}`}><span className="reason-bullet" aria-hidden="true" />{reason}</li>)}
                   </ul>
+                  {liveResult?.organisationMatch && (
+                    <div className="organisation-proof" data-testid="panel-organisation-match">
+                      <strong>{t.directoryTitle}: {liveResult.organisationMatch.name}</strong>
+                      <span dir="ltr">{liveResult.organisationMatch.officialDomain}</span>
+                      <span>{t.verifiedOn}: {liveResult.organisationMatch.dateVerified}</span>
+                      <a href={liveResult.organisationMatch.sourceUrl} target="_blank" rel="noopener noreferrer" dir="ltr" data-testid="link-verification-source">
+                        {t.sourceLabel}
+                      </a>
+                      <p>{t.matchSafetyNotice}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="result-column">
                   <h3><ShieldCheck size={16} aria-hidden="true" />{t.next}</h3>
                   <div className="next-step" data-testid="text-next-step">
-                    <strong>
-                      {currentDemo === 'directory'
-                        ? t.demoMatched
-                        : displayedAssessment === 'suspicious' ? t.suspicious : t.insufficient}
-                    </strong>
+                    <strong>{assessmentTitle}</strong>
                     {nextStep}
                   </div>
                 </div>
               </div>
               <p className="result-disclaimer" data-testid="text-disclaimer">
                 {currentDemo ? <><strong>{t.demoOnly}</strong> </> : null}{t.disclaimer}
+                {liveResult?.organisationMatch && <> {t.matchSafetyNotice}</>}
               </p>
               <div className="result-actions">
                 <button className="secondary-button" type="button" onClick={resetForm} data-testid="button-check-another">

@@ -160,19 +160,19 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 
-export const getAssessLinkUrl = () => {
+export const getCheckLinkUrl = () => {
 
 
 
 
-  return `/api/link-check`
+  return `/api/check`
 }
 
 /**
- * Checks URL structure and optional message wording only; does not visit the URL or query threat-intelligence services.
- * @summary Assess a URL without opening it
+ * Validates and analyzes URL text and optional message wording, and compares the hostname with the curated verified organisation directory. It never visits the submitted URL.
+ * @summary Check a URL without opening it
  */
-export const assessLink = async (linkCheckInput: LinkCheckInput, options?: Parameters<typeof customFetch>[1]): Promise<LinkCheckResult> => {
+export const checkLink = async (linkCheckInput: LinkCheckInput, options?: Parameters<typeof customFetch>[1]): Promise<LinkCheckResult> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -188,7 +188,7 @@ export const assessLink = async (linkCheckInput: LinkCheckInput, options?: Param
     }
     return headers;
   };
-return customFetch<LinkCheckResult>(getAssessLinkUrl(),
+return customFetch<LinkCheckResult>(getCheckLinkUrl(),
   {
     ...options,
     method: 'POST',
@@ -201,13 +201,13 @@ return customFetch<LinkCheckResult>(getAssessLinkUrl(),
 
 
 
-export const getAssessLinkMutationKey = () => ['assessLink'] as const;
+export const getCheckLinkMutationKey = () => ['checkLink'] as const;
 
-export const getAssessLinkMutationOptions = <TError = ErrorType<ApiError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assessLink>>, TError,AssessLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof assessLink>>, TError,AssessLinkMutationVariables, TContext> => {
+export const getCheckLinkMutationOptions = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof checkLink>>, TError,CheckLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof checkLink>>, TError,CheckLinkMutationVariables, TContext> => {
 
-const mutationKey = getAssessLinkMutationKey();
+const mutationKey = getCheckLinkMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -217,10 +217,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof assessLink>>, AssessLinkMutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof checkLink>>, CheckLinkMutationVariables> = (props) => {
           const {data} = props ?? {};
 
-          return  assessLink(data,requestOptions)
+          return  checkLink(data,requestOptions)
         }
 
 
@@ -230,22 +230,22 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type AssessLinkMutationResult = NonNullable<Awaited<ReturnType<typeof assessLink>>>
-    export type AssessLinkMutationBody = BodyType<LinkCheckInput>
-    export type AssessLinkMutationError = ErrorType<ApiError>
-    export type AssessLinkMutationVariables = {data: BodyType<LinkCheckInput>}
+    export type CheckLinkMutationResult = NonNullable<Awaited<ReturnType<typeof checkLink>>>
+    export type CheckLinkMutationBody = BodyType<LinkCheckInput>
+    export type CheckLinkMutationError = ErrorType<ApiError>
+    export type CheckLinkMutationVariables = {data: BodyType<LinkCheckInput>}
 
     /**
- * @summary Assess a URL without opening it
+ * @summary Check a URL without opening it
  */
-export const useAssessLink = <TError = ErrorType<ApiError>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof assessLink>>, TError,AssessLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+export const useCheckLink = <TError = ErrorType<ApiError>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof checkLink>>, TError,CheckLinkMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof assessLink>>,
+        Awaited<ReturnType<typeof checkLink>>,
         TError,
-        AssessLinkMutationVariables,
+        CheckLinkMutationVariables,
         TContext
       > => {
-      return useMutation(getAssessLinkMutationOptions(options), queryClient);
+      return useMutation(getCheckLinkMutationOptions(options), queryClient);
     }
 

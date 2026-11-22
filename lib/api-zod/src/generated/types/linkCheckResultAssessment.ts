@@ -11,5 +11,6 @@ export type LinkCheckResultAssessment = typeof LinkCheckResultAssessment[keyof t
 
 export const LinkCheckResultAssessment = {
   suspicious: 'suspicious',
-  insufficient: 'insufficient',
+  official_domain_match: 'official_domain_match',
+  unverified: 'unverified',
 } as const;

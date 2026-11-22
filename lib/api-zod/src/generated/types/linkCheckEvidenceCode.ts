@@ -6,16 +6,19 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type LinkCheckResultReasonCodesItem = typeof LinkCheckResultReasonCodesItem[keyof typeof LinkCheckResultReasonCodesItem];
+export type LinkCheckEvidenceCode = typeof LinkCheckEvidenceCode[keyof typeof LinkCheckEvidenceCode];
 
 
-export const LinkCheckResultReasonCodesItem = {
+export const LinkCheckEvidenceCode = {
   embedded_credentials: 'embedded_credentials',
   punycode_host: 'punycode_host',
   ip_address_host: 'ip_address_host',
   url_shortener: 'url_shortener',
+  insecure_http: 'insecure_http',
   pressure_words: 'pressure_words',
   password_request: 'password_request',
+  official_domain_match: 'official_domain_match',
+  domain_unverified: 'domain_unverified',
   reserved_example_domain: 'reserved_example_domain',
-  no_clear_red_flags: 'no_clear_red_flags',
+  no_clear_indicators: 'no_clear_indicators',
 } as const;

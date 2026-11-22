@@ -5,15 +5,21 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { LinkCheckEvidence } from './linkCheckEvidence';
+import type { LinkCheckNextStep } from './linkCheckNextStep';
 import type { LinkCheckResultAssessment } from './linkCheckResultAssessment';
 import type { LinkCheckResultDisclaimerCode } from './linkCheckResultDisclaimerCode';
-import type { LinkCheckResultNextStepCode } from './linkCheckResultNextStepCode';
-import type { LinkCheckResultReasonCodesItem } from './linkCheckResultReasonCodesItem';
+import type { LinkCheckResultLanguage } from './linkCheckResultLanguage';
+import type { OrganisationMatch } from './organisationMatch';
 
 export interface LinkCheckResult {
   assessment: LinkCheckResultAssessment;
+  language: LinkCheckResultLanguage;
   host: string;
-  reasonCodes: LinkCheckResultReasonCodesItem[];
-  nextStepCode: LinkCheckResultNextStepCode;
+  /** @nullable */
+  registrableDomain: string | null;
+  organisationMatch: OrganisationMatch | null;
+  evidence: LinkCheckEvidence[];
+  nextStep: LinkCheckNextStep;
   disclaimerCode: LinkCheckResultDisclaimerCode;
 }

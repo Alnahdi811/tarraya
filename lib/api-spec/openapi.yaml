@@ -11,7 +11,7 @@ tags:
   - name: health
     description: Health operations
   - name: link-check
-    description: Cautious URL text assessment
+    description: Safe text-only link assessment
 paths:
   /healthz:
     get:
@@ -26,12 +26,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
-  /link-check:
+  /check:
     post:
-      operationId: assessLink
+      operationId: checkLink
       tags: [link-check]
-      summary: Assess a URL without opening it
-      description: Checks URL structure and optional message wording only; does not visit the URL or query threat-intelligence services.
+      summary: Check a URL without opening it
+      description: Validates and analyzes URL text and optional message wording, and compares the hostname with the curated verified organisation directory. It never visits the submitted URL.
       requestBody:
         required: true
         content:
@@ -46,7 +46,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/LinkCheckResult"
         "400":
-          description: The URL could not be assessed
+          description: Invalid URL, language, or request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "413":
+          description: Request body exceeds the configured limit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Request limit reached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "500":
+          description: Analysis service failure
           content:
             application/json:
               schema:
@@ -71,46 +89,87 @@ components:
         message:
           type: string
           maxLength: 2000
-      required:
-        - url
+        language:
+          type: string
+          enum: [ar, en]
+      required: [url, language]
     LinkCheckResult:
       type: object
       properties:
         assessment:
           type: string
-          enum: [suspicious, insufficient]
+          enum: [suspicious, official_domain_match, unverified]
+        language:
+          type: string
+          enum: [ar, en]
         host:
           type: string
-        reasonCodes:
+        registrableDomain:
+          type: ["string", "null"]
+        organisationMatch:
+          oneOf:
+            - $ref: "#/components/schemas/OrganisationMatch"
+            - type: "null"
+        evidence:
           type: array
           items:
-            type: string
-            enum:
-              - embedded_credentials
-              - punycode_host
-              - ip_address_host
-              - url_shortener
-              - pressure_words
-              - password_request
-              - reserved_example_domain
-              - no_clear_red_flags
-        nextStepCode:
-          type: string
-          enum: [do_not_open, verify_separately, ask_sender]
+            $ref: "#/components/schemas/LinkCheckEvidence"
+        nextStep:
+          $ref: "#/components/schemas/LinkCheckNextStep"
         disclaimerCode:
           type: string
-          enum: [text_only]
-      required:
-        - assessment
-        - host
-        - reasonCodes
-        - nextStepCode
-        - disclaimerCode
+          enum: [text_only, domain_match_is_not_safety]
+      required: [assessment, language, host, registrableDomain, organisationMatch, evidence, nextStep, disclaimerCode]
+    OrganisationMatch:
+      type: object
+      properties:
+        name:
+          type: string
+        officialDomain:
+          type: string
+        sourceUrl:
+          type: string
+          format: uri
+        dateVerified:
+          type: string
+          pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          description: Verification date in YYYY-MM-DD format
+      required: [name, officialDomain, sourceUrl, dateVerified]
+    LinkCheckEvidence:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - embedded_credentials
+            - punycode_host
+            - ip_address_host
+            - url_shortener
+            - insecure_http
+            - pressure_words
+            - password_request
+            - official_domain_match
+            - domain_unverified
+            - reserved_example_domain
+            - no_clear_indicators
+        detail:
+          type: string
+      required: [code, detail]
+    LinkCheckNextStep:
+      type: object
+      properties:
+        code:
+          type: string
+          enum: [do_not_open, verify_official_channel, contact_sender]
+        instruction:
+          type: string
+      required: [code, instruction]
     ApiError:
       type: object
       properties:
-        error:
+        code:
           type: string
-      required:
-        - error
+        message:
+          type: string
+      required: [code, message]
 

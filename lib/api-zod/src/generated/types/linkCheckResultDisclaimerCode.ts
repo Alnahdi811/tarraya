@@ -11,4 +11,5 @@ export type LinkCheckResultDisclaimerCode = typeof LinkCheckResultDisclaimerCode
 
 export const LinkCheckResultDisclaimerCode = {
   text_only: 'text_only',
+  domain_match_is_not_safety: 'domain_match_is_not_safety',
 } as const;

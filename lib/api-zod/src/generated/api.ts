@@ -18,26 +18,44 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * Checks URL structure and optional message wording only; does not visit the URL or query threat-intelligence services.
- * @summary Assess a URL without opening it
+ * Validates and analyzes URL text and optional message wording, and compares the hostname with the curated verified organisation directory. It never visits the submitted URL.
+ * @summary Check a URL without opening it
  */
-export const assessLinkBodyUrlMax = 2048;
+export const checkLinkBodyUrlMax = 2048;
 
-export const assessLinkBodyMessageMax = 2000;
+export const checkLinkBodyMessageMax = 2000;
 
 
 
-export const AssessLinkBody = zod.object({
-  "url": zod.string().min(1).max(assessLinkBodyUrlMax),
-  "message": zod.string().max(assessLinkBodyMessageMax).optional()
+export const CheckLinkBody = zod.object({
+  "url": zod.string().min(1).max(checkLinkBodyUrlMax),
+  "message": zod.string().max(checkLinkBodyMessageMax).optional(),
+  "language": zod.enum(['ar', 'en'])
 })
 
-export const AssessLinkResponse = zod.object({
-  "assessment": zod.enum(['suspicious', 'insufficient']),
+export const checkLinkResponseOrganisationMatchOneDateVerifiedRegExp = new RegExp('^[0-9]{4}-[0-9]{2}-[0-9]{2}$');
+
+
+export const CheckLinkResponse = zod.object({
+  "assessment": zod.enum(['suspicious', 'official_domain_match', 'unverified']),
+  "language": zod.enum(['ar', 'en']),
   "host": zod.string(),
-  "reasonCodes": zod.array(zod.enum(['embedded_credentials', 'punycode_host', 'ip_address_host', 'url_shortener', 'pressure_words', 'password_request', 'reserved_example_domain', 'no_clear_red_flags'])),
-  "nextStepCode": zod.enum(['do_not_open', 'verify_separately', 'ask_sender']),
-  "disclaimerCode": zod.enum(['text_only'])
+  "registrableDomain": zod.string().nullable(),
+  "organisationMatch": zod.union([zod.object({
+  "name": zod.string(),
+  "officialDomain": zod.string(),
+  "sourceUrl": zod.url(),
+  "dateVerified": zod.string().regex(checkLinkResponseOrganisationMatchOneDateVerifiedRegExp).describe('Verification date in YYYY-MM-DD format')
+}),zod.null()]),
+  "evidence": zod.array(zod.object({
+  "code": zod.enum(['embedded_credentials', 'punycode_host', 'ip_address_host', 'url_shortener', 'insecure_http', 'pressure_words', 'password_request', 'official_domain_match', 'domain_unverified', 'reserved_example_domain', 'no_clear_indicators']),
+  "detail": zod.string()
+})),
+  "nextStep": zod.object({
+  "code": zod.enum(['do_not_open', 'verify_official_channel', 'contact_sender']),
+  "instruction": zod.string()
+}),
+  "disclaimerCode": zod.enum(['text_only', 'domain_match_is_not_safety'])
 })
 
 

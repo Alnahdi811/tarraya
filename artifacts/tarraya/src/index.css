@@ -219,6 +219,10 @@
 .reason-list { display:grid; gap:11px; margin:0; padding:0; list-style:none; }
 .reason-list li { display:flex; gap:10px; color:#506267; font-size:14px; line-height:1.65; }
 .reason-bullet { flex:0 0 7px; width:7px; height:7px; margin-top:8px; border-radius:50%; background:#56ad91; }
+.organisation-proof { display:grid; gap:7px; margin-top:18px; padding:14px 16px; border-inline-start:3px solid #58aa8d; border-radius:0 10px 10px 0; background:#edf7f1; color:#38574c; font-size:13px; line-height:1.6; overflow-wrap:anywhere; }
+.organisation-proof strong { color:#193f32; }
+.organisation-proof a { color:#176450; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+.organisation-proof p { margin:2px 0 0; color:#536c62; }
 .next-step { min-height:100%; padding:18px 19px; border-radius:15px; background:#edf7f1; color:#234538; font-size:15px; line-height:1.8; }
 .next-step strong { display:block; margin-bottom:7px; color:#194b3a; }
 .result-disclaimer { margin:0 30px; padding:15px 0 20px; border-top:1px solid #e5e9e2; color:#6c787a; font-size:12px; line-height:1.75; }

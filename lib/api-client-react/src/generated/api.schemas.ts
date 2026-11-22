@@ -9,6 +9,14 @@ export interface HealthStatus {
   status: string;
 }
 
+export type LinkCheckInputLanguage = typeof LinkCheckInputLanguage[keyof typeof LinkCheckInputLanguage];
+
+
+export const LinkCheckInputLanguage = {
+  ar: 'ar',
+  en: 'en',
+} as const;
+
 export interface LinkCheckInput {
   /**
      * @minLength 1
@@ -17,6 +25,7 @@ export interface LinkCheckInput {
   url: string;
   /** @maxLength 2000 */
   message?: string;
+  language: LinkCheckInputLanguage;
 }
 
 export type LinkCheckResultAssessment = typeof LinkCheckResultAssessment[keyof typeof LinkCheckResultAssessment];
@@ -24,30 +33,16 @@ export type LinkCheckResultAssessment = typeof LinkCheckResultAssessment[keyof t
 
 export const LinkCheckResultAssessment = {
   suspicious: 'suspicious',
-  insufficient: 'insufficient',
+  official_domain_match: 'official_domain_match',
+  unverified: 'unverified',
 } as const;
 
-export type LinkCheckResultReasonCodesItem = typeof LinkCheckResultReasonCodesItem[keyof typeof LinkCheckResultReasonCodesItem];
+export type LinkCheckResultLanguage = typeof LinkCheckResultLanguage[keyof typeof LinkCheckResultLanguage];
 
 
-export const LinkCheckResultReasonCodesItem = {
-  embedded_credentials: 'embedded_credentials',
-  punycode_host: 'punycode_host',
-  ip_address_host: 'ip_address_host',
-  url_shortener: 'url_shortener',
-  pressure_words: 'pressure_words',
-  password_request: 'password_request',
-  reserved_example_domain: 'reserved_example_domain',
-  no_clear_red_flags: 'no_clear_red_flags',
-} as const;
-
-export type LinkCheckResultNextStepCode = typeof LinkCheckResultNextStepCode[keyof typeof LinkCheckResultNextStepCode];
-
-
-export const LinkCheckResultNextStepCode = {
-  do_not_open: 'do_not_open',
-  verify_separately: 'verify_separately',
-  ask_sender: 'ask_sender',
+export const LinkCheckResultLanguage = {
+  ar: 'ar',
+  en: 'en',
 } as const;
 
 export type LinkCheckResultDisclaimerCode = typeof LinkCheckResultDisclaimerCode[keyof typeof LinkCheckResultDisclaimerCode];
@@ -55,17 +50,70 @@ export type LinkCheckResultDisclaimerCode = typeof LinkCheckResultDisclaimerCode
 
 export const LinkCheckResultDisclaimerCode = {
   text_only: 'text_only',
+  domain_match_is_not_safety: 'domain_match_is_not_safety',
 } as const;
+
+export interface OrganisationMatch {
+  name: string;
+  officialDomain: string;
+  sourceUrl: string;
+  /**
+     * Verification date in YYYY-MM-DD format
+     * @pattern ^[0-9]{4}-[0-9]{2}-[0-9]{2}$
+     */
+  dateVerified: string;
+}
+
+export type LinkCheckEvidenceCode = typeof LinkCheckEvidenceCode[keyof typeof LinkCheckEvidenceCode];
+
+
+export const LinkCheckEvidenceCode = {
+  embedded_credentials: 'embedded_credentials',
+  punycode_host: 'punycode_host',
+  ip_address_host: 'ip_address_host',
+  url_shortener: 'url_shortener',
+  insecure_http: 'insecure_http',
+  pressure_words: 'pressure_words',
+  password_request: 'password_request',
+  official_domain_match: 'official_domain_match',
+  domain_unverified: 'domain_unverified',
+  reserved_example_domain: 'reserved_example_domain',
+  no_clear_indicators: 'no_clear_indicators',
+} as const;
+
+export interface LinkCheckEvidence {
+  code: LinkCheckEvidenceCode;
+  detail: string;
+}
+
+export type LinkCheckNextStepCode = typeof LinkCheckNextStepCode[keyof typeof LinkCheckNextStepCode];
+
+
+export const LinkCheckNextStepCode = {
+  do_not_open: 'do_not_open',
+  verify_official_channel: 'verify_official_channel',
+  contact_sender: 'contact_sender',
+} as const;
+
+export interface LinkCheckNextStep {
+  code: LinkCheckNextStepCode;
+  instruction: string;
+}
 
 export interface LinkCheckResult {
   assessment: LinkCheckResultAssessment;
+  language: LinkCheckResultLanguage;
   host: string;
-  reasonCodes: LinkCheckResultReasonCodesItem[];
-  nextStepCode: LinkCheckResultNextStepCode;
+  /** @nullable */
+  registrableDomain: string | null;
+  organisationMatch: OrganisationMatch | null;
+  evidence: LinkCheckEvidence[];
+  nextStep: LinkCheckNextStep;
   disclaimerCode: LinkCheckResultDisclaimerCode;
 }
 
 export interface ApiError {
-  error: string;
+  code: string;
+  message: string;
 }
 

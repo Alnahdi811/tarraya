@@ -8,9 +8,14 @@
 
 export * from './apiError';
 export * from './healthStatus';
+export * from './linkCheckEvidence';
+export * from './linkCheckEvidenceCode';
 export * from './linkCheckInput';
+export * from './linkCheckInputLanguage';
+export * from './linkCheckNextStep';
+export * from './linkCheckNextStepCode';
 export * from './linkCheckResult';
 export * from './linkCheckResultAssessment';
 export * from './linkCheckResultDisclaimerCode';
-export * from './linkCheckResultNextStepCode';
-export * from './linkCheckResultReasonCodesItem';
+export * from './linkCheckResultLanguage';
+export * from './organisationMatch';

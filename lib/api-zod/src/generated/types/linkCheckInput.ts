@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { LinkCheckInputLanguage } from './linkCheckInputLanguage';
 
 export interface LinkCheckInput {
   /**
@@ -14,4 +15,5 @@ export interface LinkCheckInput {
   url: string;
   /** @maxLength 2000 */
   message?: string;
+  language: LinkCheckInputLanguage;
 }
