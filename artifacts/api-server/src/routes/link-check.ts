@@ -4,7 +4,10 @@ import {
   CheckLinkResponse,
 } from "@workspace/api-zod";
 import rateLimit from "express-rate-limit";
-import { analyzeLink, LinkAnalysisInputError } from "../lib/link-analysis";
+import {
+  analyzeLink,
+} from "../lib/link-analysis-service";
+import { LinkAnalysisInputError } from "../lib/link-analysis";
 
 const router: IRouter = Router();
 
@@ -25,7 +28,7 @@ const checkLimiter = rateLimit({
   },
 });
 
-router.post("/check", checkLimiter, (req, res): void => {
+router.post("/check", checkLimiter, async (req, res): Promise<void> => {
   const input = CheckLinkBody.safeParse(req.body);
   if (!input.success) {
     const language = req.body?.language === "ar" ? "ar" : "en";
@@ -40,7 +43,10 @@ router.post("/check", checkLimiter, (req, res): void => {
   }
 
   try {
-    const result = CheckLinkResponse.parse(analyzeLink(input.data));
+    const result = CheckLinkResponse.parse(await analyzeLink(input.data));
+    if (result.aiAnalysis.status === "unavailable") {
+      req.log.warn("AI message analysis unavailable; returning domain findings.");
+    }
     res.json(result);
   } catch (error) {
     if (error instanceof LinkAnalysisInputError) {

@@ -13,6 +13,7 @@ import {
 } from "../data/verified-organisations";
 
 type Language = LinkCheckInput["language"];
+type DomainLinkResult = Omit<LinkCheckResult, "aiAnalysis">;
 type DirectoryCheckCode =
   | "exact_match"
   | "hostname_not_listed"
@@ -229,10 +230,10 @@ function localisedEvidence(
  * It only parses submitted text and the local verified directory; it never
  * makes a request to the submitted URL or directory source.
  */
-export function analyzeLink(
+export function analyzeDomainLink(
   input: LinkCheckInput,
   directory: readonly VerifiedOrganisation[] = verifiedOrganisations,
-): LinkCheckResult {
+): DomainLinkResult {
   validateDirectory(directory);
 
   if (

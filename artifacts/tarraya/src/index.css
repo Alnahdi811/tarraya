@@ -235,6 +235,17 @@
 .organisation-proof p { margin:2px 0 0; color:#536c62; }
 .next-step { min-height:100%; padding:18px 19px; border-radius:15px; background:#edf7f1; color:#234538; font-size:15px; line-height:1.8; }
 .next-step strong { display:block; margin-bottom:7px; color:#194b3a; }
+.ai-analysis { margin:0 30px 21px; padding:18px 20px; border:1px solid #dce8e0; border-radius:15px; background:#f7faf6; color:#405657; }
+.ai-analysis h3 { margin:0 0 7px; color:#193543; font-size:15px; }
+.ai-analysis-status { margin:0; font-size:13px; line-height:1.7; }
+.ai-analysis.unavailable { border-color:#e5d4b3; background:#fff9ed; }
+.ai-analysis.inconclusive { background:#f2f4f1; }
+.ai-claimed-organisation { margin:10px 0 0; font-size:13px; line-height:1.6; overflow-wrap:anywhere; }
+.ai-signal-list { display:grid; gap:13px; margin:14px 0 0; padding:0; list-style:none; }
+.ai-signal-list li { padding-top:12px; border-top:1px solid #e1e9e2; font-size:13px; line-height:1.7; }
+.ai-signal-list li > strong { color:#1b5846; }
+.ai-signal-list blockquote { margin:5px 0; padding-inline-start:12px; border-inline-start:2px solid #78bda4; color:#56696c; overflow-wrap:anywhere; }
+.ai-signal-list li > p { margin:0; color:#4b5e61; }
 .result-disclaimer { margin:0 30px; padding:15px 0 20px; border-top:1px solid #e5e9e2; color:#6c787a; font-size:12px; line-height:1.75; }
 .result-actions { display:flex; justify-content:flex-start; padding:0 30px 27px; }
 .secondary-button { display:inline-flex; justify-content:center; align-items:center; gap:9px; min-height:46px; padding:0 17px; border:1px solid #b9ccc3; border-radius:12px; background:transparent; color:#153447; font-size:14px; font-weight:700; cursor:pointer; transition:background .18s ease, border-color .18s ease; }
@@ -283,6 +294,7 @@
   .result-heading { gap:12px; }
   .result-title { font-size:20px; }
   .result-body { grid-template-columns:1fr; gap:23px; padding:22px 19px; }
+  .ai-analysis { margin:0 19px 18px; padding:15px 16px; }
   .result-disclaimer { margin:0 19px; }
   .result-actions { padding:0 19px 20px; }
   .section-head { display:block; }

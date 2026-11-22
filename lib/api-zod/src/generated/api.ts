@@ -18,7 +18,7 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * Validates URL text and optional message wording, identifies a listed organisation named in the message, and compares the parsed hostname exactly with that organisation's verified hostname. It never visits the submitted URL.
+ * Validates URL text, compares its parsed hostname exactly with the listed organisation named in the message, and analyzes provided message text with Replit-managed OpenAI. AI findings are structured and validated; the submitted URL is never visited.
  * @summary Check a URL without opening it
  */
 export const checkLinkBodyUrlMax = 2048;
@@ -59,6 +59,16 @@ export const CheckLinkResponse = zod.object({
   "nextStep": zod.object({
   "code": zod.enum(['do_not_open', 'verify_official_channel', 'contact_sender']),
   "instruction": zod.string()
+}),
+  "aiAnalysis": zod.object({
+  "status": zod.enum(['analyzed', 'inconclusive', 'unavailable', 'not_requested']),
+  "claimedOrganisation": zod.string().nullable(),
+  "signals": zod.array(zod.object({
+  "kind": zod.enum(['payment_request', 'urgency', 'sensitive_information']),
+  "excerpt": zod.string(),
+  "explanation": zod.string()
+})),
+  "message": zod.string()
 }),
   "disclaimerCode": zod.enum(['text_only', 'domain_match_is_not_safety'])
 })

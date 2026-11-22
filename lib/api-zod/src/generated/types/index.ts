@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './aiMessageAnalysis';
+export * from './aiMessageAnalysisStatus';
+export * from './aiMessageSignal';
+export * from './aiMessageSignalKind';
 export * from './apiError';
 export * from './directoryCheck';
 export * from './directoryCheckCode';

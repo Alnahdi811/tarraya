@@ -121,6 +121,39 @@ export interface LinkCheckNextStep {
   instruction: string;
 }
 
+export type AiMessageAnalysisStatus = typeof AiMessageAnalysisStatus[keyof typeof AiMessageAnalysisStatus];
+
+
+export const AiMessageAnalysisStatus = {
+  analyzed: 'analyzed',
+  inconclusive: 'inconclusive',
+  unavailable: 'unavailable',
+  not_requested: 'not_requested',
+} as const;
+
+export type AiMessageSignalKind = typeof AiMessageSignalKind[keyof typeof AiMessageSignalKind];
+
+
+export const AiMessageSignalKind = {
+  payment_request: 'payment_request',
+  urgency: 'urgency',
+  sensitive_information: 'sensitive_information',
+} as const;
+
+export interface AiMessageSignal {
+  kind: AiMessageSignalKind;
+  excerpt: string;
+  explanation: string;
+}
+
+export interface AiMessageAnalysis {
+  status: AiMessageAnalysisStatus;
+  /** @nullable */
+  claimedOrganisation: string | null;
+  signals: AiMessageSignal[];
+  message: string;
+}
+
 export interface LinkCheckResult {
   assessment: LinkCheckResultAssessment;
   language: LinkCheckResultLanguage;
@@ -130,6 +163,7 @@ export interface LinkCheckResult {
   directoryCheck: DirectoryCheck;
   evidence: LinkCheckEvidence[];
   nextStep: LinkCheckNextStep;
+  aiAnalysis: AiMessageAnalysis;
   disclaimerCode: LinkCheckResultDisclaimerCode;
 }
 

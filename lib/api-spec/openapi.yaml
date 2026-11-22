@@ -31,7 +31,7 @@ paths:
       operationId: checkLink
       tags: [link-check]
       summary: Check a URL without opening it
-      description: Validates URL text and optional message wording, identifies a listed organisation named in the message, and compares the parsed hostname exactly with that organisation's verified hostname. It never visits the submitted URL.
+      description: Validates URL text, compares its parsed hostname exactly with the listed organisation named in the message, and analyzes provided message text with Replit-managed OpenAI. AI findings are structured and validated; the submitted URL is never visited.
       requestBody:
         required: true
         content:
@@ -114,10 +114,12 @@ components:
             $ref: "#/components/schemas/LinkCheckEvidence"
         nextStep:
           $ref: "#/components/schemas/LinkCheckNextStep"
+        aiAnalysis:
+          $ref: "#/components/schemas/AiMessageAnalysis"
         disclaimerCode:
           type: string
           enum: [text_only, domain_match_is_not_safety]
-      required: [assessment, language, host, registrableDomain, directoryCheck, evidence, nextStep, disclaimerCode]
+      required: [assessment, language, host, registrableDomain, directoryCheck, evidence, nextStep, aiAnalysis, disclaimerCode]
     DirectoryCheck:
       description: Exact hostname comparison for the single listed organisation identified in the message, if any.
       type: object
@@ -180,6 +182,32 @@ components:
         instruction:
           type: string
       required: [code, instruction]
+    AiMessageAnalysis:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [analyzed, inconclusive, unavailable, not_requested]
+        claimedOrganisation:
+          type: ["string", "null"]
+        signals:
+          type: array
+          items:
+            $ref: "#/components/schemas/AiMessageSignal"
+        message:
+          type: string
+      required: [status, claimedOrganisation, signals, message]
+    AiMessageSignal:
+      type: object
+      properties:
+        kind:
+          type: string
+          enum: [payment_request, urgency, sensitive_information]
+        excerpt:
+          type: string
+        explanation:
+          type: string
+      required: [kind, excerpt, explanation]
     ApiError:
       type: object
       properties:

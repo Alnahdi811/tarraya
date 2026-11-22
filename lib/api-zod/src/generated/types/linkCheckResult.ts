@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AiMessageAnalysis } from './aiMessageAnalysis';
 import type { DirectoryCheck } from './directoryCheck';
 import type { LinkCheckEvidence } from './linkCheckEvidence';
 import type { LinkCheckNextStep } from './linkCheckNextStep';
@@ -21,5 +22,6 @@ export interface LinkCheckResult {
   directoryCheck: DirectoryCheck;
   evidence: LinkCheckEvidence[];
   nextStep: LinkCheckNextStep;
+  aiAnalysis: AiMessageAnalysis;
   disclaimerCode: LinkCheckResultDisclaimerCode;
 }

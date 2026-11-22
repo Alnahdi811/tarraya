@@ -20,13 +20,13 @@ const copy = {
     headlineB: 'افحص الرابط',
     headlineC: 'قبل أن تفتحه.',
     intro: 'إذا وصلك رابط يثير الشك، ضعه هنا. نراجع شكله وكلمات الرسالة من دون فتحه.',
-    trust: 'لن نزور الرابط أو نحمّل محتواه. الفحص يقرأ النص فقط، ولا يضمن أن الرابط آمن.',
+    trust: 'لن نزور الرابط أو نحمّل محتواه. الفحص يراجع النص فقط، ولا يضمن أن الرابط آمن.',
     cardTitle: 'ابدأ بفحص الرابط',
     cardSub: 'لا تفتح الرابط لتنسخه؛ انسخه من الرسالة والصقه هنا.',
     urlLabel: 'الصق الرابط هنا',
     urlHint: 'يمكنك لصق الرابط كما وصلك، حتى لو بدا غريباً.',
     messageLabel: 'نص الرسالة الاختياري',
-    messageHint: 'أضف الرسالة المحيطة بالرابط إن رغبت. لا تضع كلمات مرور أو بيانات خاصة.',
+    messageHint: 'أضف الرسالة المحيطة بالرابط إن رغبت. لا تضع كلمات مرور أو بيانات خاصة؛ يُرسل النص إلى OpenAI عبر Replit وتُخصم تكلفة الاستخدام من رصيد المشروع.',
     submit: 'افحص الآن',
     loading: 'نراجع النص فقط… لن نفتح الرابط',
     error: 'تعذّر إكمال الفحص الآن. تحقّق من اتصالك ثم حاول مرة أخرى.',
@@ -38,7 +38,7 @@ const copy = {
     demoMatched: 'تطابق توضيحي في دليل خيالي',
     demoBadge: 'تجربة توضيحية فقط',
     howTitle: 'ماذا يحدث للرابط؟',
-    howCopy: 'تريّا يراجع <strong>نص الرابط والرسالة فقط</strong> بحثاً عن مؤشرات واضحة، مثل كلمات الاستعجال أو طلب كلمة المرور أو عنوان مختصر. لا يفتح الرابط ولا يتحقق من محتوى الموقع. لذلك، غياب المؤشرات لا يعني أن الرابط آمن.',
+    howCopy: 'تريّا يراجع <strong>نص الرابط والرسالة فقط</strong>. يتحقق الخادم من اسم النطاق المدرج، ويحلل OpenAI نص الرسالة بحثاً عن طلب دفع أو استعجال أو معلومات حساسة. لا نفتح الرابط ولا نفحص الموقع، وغياب المؤشرات لا يعني أن الرابط آمن.',
     officialNote: 'إذا لم يظهر تطابق أو لم تتوفر معلومات كافية، تواصل مع الجهة عبر قناة رسمية تعثر عليها بشكل مستقل — لا تستخدم بيانات التواصل الموجودة في الرسالة المشكوك فيها.',
     footer: 'فكّر قبل أن تنقر.',
     footerSub: 'أداة مساعدة، وليست ضماناً للسلامة.',
@@ -61,6 +61,19 @@ const copy = {
       exact_match: 'اسم النطاق يطابق مدخل الدليل.',
       hostname_not_listed: 'اسم النطاق هذا غير مدرج للجهة المذكورة في الرسالة.',
       insufficient_information: 'المعلومات غير كافية.',
+    },
+    aiTitle: 'تحليل الرسالة بالذكاء الاصطناعي',
+    aiStatus: {
+      analyzed: 'حلّل الذكاء الاصطناعي نص الرسالة فقط؛ راجع المؤشرات والمقتطفات أدناه.',
+      inconclusive: 'لا تتضمن الرسالة أدلة كافية لتحليل موثوق.',
+      unavailable: 'تحليل الرسالة بالذكاء الاصطناعي غير متاح حالياً. لا تزال نتائج فحص النطاق معروضة.',
+      not_requested: 'لم يُدخل نص رسالة لتحليله. لا تزال نتائج فحص النطاق معروضة.',
+    },
+    claimedOrganisation: 'الجهة التي تدّعي الرسالة أنها تتواصل معها',
+    aiSignalKinds: {
+      payment_request: 'طلب دفع',
+      urgency: 'استعجال',
+      sensitive_information: 'طلب معلومات حساسة',
     },
     verifiedOn: 'تاريخ التحقق',
     sourceLabel: 'مصدر التحقق',
@@ -111,7 +124,7 @@ const copy = {
     urlLabel: 'Paste the link here',
     urlHint: 'Paste the link as you received it, even if it looks unusual.',
     messageLabel: 'Optional message text',
-    messageHint: 'Optionally add the message around the link. Do not include passwords or private details.',
+    messageHint: 'Optionally add the message around the link. Do not include passwords or private details. Text goes to OpenAI via Replit; token usage is charged to project credits.',
     submit: 'Check now',
     loading: 'Reviewing text only… the link will not be opened',
     error: 'The check could not be completed. Check your connection and try again.',
@@ -123,7 +136,7 @@ const copy = {
     demoMatched: 'A demonstration match in a fictional directory',
     demoBadge: 'DEMONSTRATION ONLY',
     howTitle: 'What happens to a link?',
-    howCopy: 'Tarraya reviews <strong>the link text and message only</strong> for clear signals, such as pressure words, password requests, or shortened addresses. It does not open the link or check what a website contains. No visible warning signs does not mean a link is safe.',
+    howCopy: 'Tarraya reviews <strong>the link text and optional message only</strong>. The server compares the exact listed hostname, and OpenAI analyzes the message for payment requests, urgency, or sensitive-information requests. We never open the link or inspect the website, and no visible warning signs do not prove safety.',
     officialNote: 'If there is no match or there is not enough information, contact the organisation through an official channel you find independently — not through details in the suspicious message.',
     footer: 'Think before you tap.',
     footerSub: 'A helpful check, not a safety guarantee.',
@@ -146,6 +159,19 @@ const copy = {
       exact_match: 'Hostname matches the directory entry.',
       hostname_not_listed: "This hostname isn't listed for the organisation named in the message.",
       insufficient_information: 'Insufficient information.',
+    },
+    aiTitle: 'AI message analysis',
+    aiStatus: {
+      analyzed: 'AI reviewed the message text only; see the cited signals below.',
+      inconclusive: 'The message does not provide enough evidence for a reliable analysis.',
+      unavailable: 'AI message analysis is unavailable. Domain-check findings are still shown.',
+      not_requested: 'No message was provided for AI analysis. Domain-check findings are still shown.',
+    },
+    claimedOrganisation: 'Organisation claimed in the message',
+    aiSignalKinds: {
+      payment_request: 'Payment request',
+      urgency: 'Urgency',
+      sensitive_information: 'Sensitive information request',
     },
     verifiedOn: 'Date verified',
     sourceLabel: 'Verification source',
@@ -422,6 +448,31 @@ function Tarraya() {
                   </div>
                 </div>
               </div>
+              {liveResult && (
+                <section className={`ai-analysis ${liveResult.aiAnalysis.status}`} data-testid="panel-ai-analysis">
+                  <h3>{t.aiTitle}</h3>
+                  <p className="ai-analysis-status" data-testid="text-ai-analysis-status">
+                    {t.aiStatus[liveResult.aiAnalysis.status]}
+                  </p>
+                  {liveResult.aiAnalysis.claimedOrganisation && (
+                    <p className="ai-claimed-organisation">
+                      <strong>{t.claimedOrganisation}:</strong>{' '}
+                      <bdi>{liveResult.aiAnalysis.claimedOrganisation}</bdi>
+                    </p>
+                  )}
+                  {liveResult.aiAnalysis.signals.length > 0 && (
+                    <ul className="ai-signal-list">
+                      {liveResult.aiAnalysis.signals.map((signal, index) => (
+                        <li key={`${signal.kind}-${index}`}>
+                          <strong>{t.aiSignalKinds[signal.kind]}</strong>
+                          <blockquote dir="auto">{signal.excerpt}</blockquote>
+                          <p>{signal.explanation}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              )}
               <p className="result-disclaimer" data-testid="text-disclaimer">
                 {currentDemo ? <><strong>{t.demoOnly}</strong> </> : null}{t.disclaimer}
                 {liveResult?.directoryCheck.code === 'exact_match' && <> {t.matchSafetyNotice}</>}
