@@ -18,7 +18,7 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * Validates and analyzes URL text and optional message wording, and compares the hostname with the curated verified organisation directory. It never visits the submitted URL.
+ * Validates URL text and optional message wording, identifies a listed organisation named in the message, and compares the parsed hostname exactly with that organisation's verified hostname. It never visits the submitted URL.
  * @summary Check a URL without opening it
  */
 export const checkLinkBodyUrlMax = 2048;
@@ -43,7 +43,7 @@ export const CheckLinkResponse = zod.object({
   "registrableDomain": zod.string().nullable(),
   "directoryCheck": zod.object({
   "code": zod.enum(['exact_match', 'hostname_not_listed', 'insufficient_information']),
-  "message": zod.string(),
+  "message": zod.string().describe('Localized result text for the hostname comparison.'),
   "organisation": zod.union([zod.object({
   "name": zod.string(),
   "category": zod.string(),
@@ -51,7 +51,7 @@ export const CheckLinkResponse = zod.object({
   "sourceUrl": zod.url(),
   "verificationDate": zod.string().regex(checkLinkResponseDirectoryCheckOrganisationOneVerificationDateRegExp).describe('Verification date in YYYY-MM-DD format')
 }),zod.null()])
-}),
+}).describe('Exact hostname comparison for the single listed organisation identified in the message, if any.'),
   "evidence": zod.array(zod.object({
   "code": zod.enum(['embedded_credentials', 'punycode_host', 'ip_address_host', 'url_shortener', 'insecure_http', 'pressure_words', 'password_request', 'official_domain_match', 'organisation_hostname_mismatch', 'organisation_unidentified', 'reserved_example_domain', 'no_clear_indicators']),
   "detail": zod.string()

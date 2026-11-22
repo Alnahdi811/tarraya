@@ -31,7 +31,7 @@ paths:
       operationId: checkLink
       tags: [link-check]
       summary: Check a URL without opening it
-      description: Validates and analyzes URL text and optional message wording, and compares the hostname with the curated verified organisation directory. It never visits the submitted URL.
+      description: Validates URL text and optional message wording, identifies a listed organisation named in the message, and compares the parsed hostname exactly with that organisation's verified hostname. It never visits the submitted URL.
       requestBody:
         required: true
         content:
@@ -119,6 +119,7 @@ components:
           enum: [text_only, domain_match_is_not_safety]
       required: [assessment, language, host, registrableDomain, directoryCheck, evidence, nextStep, disclaimerCode]
     DirectoryCheck:
+      description: Exact hostname comparison for the single listed organisation identified in the message, if any.
       type: object
       properties:
         code:
@@ -126,6 +127,7 @@ components:
           enum: [exact_match, hostname_not_listed, insufficient_information]
         message:
           type: string
+          description: Localized result text for the hostname comparison.
         organisation:
           oneOf:
             - $ref: "#/components/schemas/DirectoryOrganisation"

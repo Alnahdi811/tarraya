@@ -48,12 +48,20 @@ const copy = {
     assessment: {
       suspicious: 'توجد مؤشرات تستدعي الحذر',
       official_domain_match: 'النطاق مدرج للجهة، لكن ذلك لا يثبت سلامة الرابط',
-      unverified: 'هذا النطاق غير موثّق في الدليل الحالي',
+      unverified: 'لا يظهر تطابق موثّق بين الرسالة واسم النطاق',
     },
+    submittedLink: 'الرابط الذي أرسلته',
     host: 'النطاق الذي جرى فحصه',
+    directoryResult: 'نتيجة مطابقة اسم النطاق',
     reasons: 'لماذا ظهرت هذه النتيجة؟',
     next: 'الخطوة الأكثر أماناً',
-    directoryTitle: 'مطابقة دليل الجهات الموثّقة',
+    directoryTitle: 'معلومات الجهة المدرجة',
+    categoryLabels: { bank: 'بنك', courier: 'شركة شحن', postal_service: 'خدمة بريدية' },
+    directoryMessages: {
+      exact_match: 'اسم النطاق يطابق مدخل الدليل.',
+      hostname_not_listed: 'اسم النطاق هذا غير مدرج للجهة المذكورة في الرسالة.',
+      insufficient_information: 'المعلومات غير كافية.',
+    },
     verifiedOn: 'تاريخ التحقق',
     sourceLabel: 'مصدر التحقق',
     matchSafetyNotice: 'مطابقة النطاق لا تعني أن الرابط أو الرسالة آمنان.',
@@ -68,8 +76,9 @@ const copy = {
       insecure_http: 'يستخدم الرابط اتصال HTTP غير المشفّر.',
       pressure_words: 'تتضمن الرسالة كلمات تضغط لاتخاذ إجراء سريع.',
       password_request: 'تطلب الرسالة كلمة مرور أو بيانات تسجيل دخول.',
-      official_domain_match: 'يطابق النطاق دليلاً موثّقاً لجهة رسمية، لكن ذلك لا يثبت سلامة الرابط أو الرسالة.',
-      domain_unverified: 'لم يظهر النطاق ضمن دليل الجهات الموثّقة الحالي.',
+      official_domain_match: 'يطابق اسم النطاق المدخل المدرج للجهة، لكن ذلك لا يثبت سلامة الرابط أو الرسالة.',
+      organisation_hostname_mismatch: 'اسم النطاق هذا غير مدرج للجهة المذكورة في الرسالة.',
+      organisation_unidentified: 'لم يتم تحديد جهة مدرجة في الدليل من نص الرسالة.',
       reserved_example_domain: 'النطاق محجوز للأمثلة ولا يمثل جهة حقيقية.',
       no_clear_indicators: 'لم تظهر في النص مؤشرات خطر واضحة؛ هذا لا يثبت أن الرابط آمن.',
     },
@@ -124,12 +133,20 @@ const copy = {
     assessment: {
       suspicious: 'Signs call for caution',
       official_domain_match: 'Domain listed for this organisation — not a safety guarantee',
-      unverified: 'This domain is not verified in the current directory',
+      unverified: 'No verified match for the message and hostname',
     },
+    submittedLink: 'Submitted link',
     host: 'Host reviewed',
+    directoryResult: 'Hostname directory result',
     reasons: 'Why this result?',
     next: 'A safer next step',
-    directoryTitle: 'Verified directory match',
+    directoryTitle: 'Listed organisation details',
+    categoryLabels: { bank: 'Bank', courier: 'Courier', postal_service: 'Postal service' },
+    directoryMessages: {
+      exact_match: 'Hostname matches the directory entry.',
+      hostname_not_listed: "This hostname isn't listed for the organisation named in the message.",
+      insufficient_information: 'Insufficient information.',
+    },
     verifiedOn: 'Date verified',
     sourceLabel: 'Verification source',
     matchSafetyNotice: 'A domain match does not mean the link or message is safe.',
@@ -145,7 +162,8 @@ const copy = {
       pressure_words: 'The message uses words that pressure you to act quickly.',
       password_request: 'The message asks for a password or sign-in details.',
       official_domain_match: 'The domain matches an entry in the verified directory, but this does not prove the link or message is safe.',
-      domain_unverified: 'This domain is not in the current verified organisation directory.',
+      organisation_hostname_mismatch: "This hostname isn't listed for the organisation named in the message.",
+      organisation_unidentified: 'No listed organisation could be identified from the message.',
       reserved_example_domain: 'This domain is reserved for examples and does not represent a real organisation.',
       no_clear_indicators: 'No clear warning signs appeared in the text; that does not prove the link is safe.',
     },
@@ -236,6 +254,10 @@ function Tarraya() {
   const currentDemo = resultView?.kind === 'demo' ? resultView.id : null;
   const resultHost = currentDemo ? demoHosts[currentDemo] : resultView?.kind === 'live' ? resultView.result.host : '';
   const liveResult = resultView?.kind === 'live' ? resultView.result : null;
+  const directoryOrganisation = liveResult?.directoryCheck.organisation ?? null;
+  const directoryCategory = directoryOrganisation
+    ? t.categoryLabels[directoryOrganisation.category as keyof typeof t.categoryLabels] ?? directoryOrganisation.category
+    : '';
   const reasons = currentDemo === 'directory'
     ? [t.demoReasons.directory]
     : currentDemo === 'insufficient'
@@ -360,19 +382,35 @@ function Tarraya() {
               <div className="result-body">
                 <div className="result-column">
                   <h3><Sparkles size={16} aria-hidden="true" />{t.reasons}</h3>
+                  {liveResult && (
+                    <p className="submitted-link" data-testid="text-submitted-link">
+                      <strong>{t.submittedLink}</strong>
+                      <bdi dir="ltr">{url}</bdi>
+                    </p>
+                  )}
                   {resultHost && <p className="field-hint">{t.host}: <b dir="ltr">{resultHost}</b></p>}
+                  {liveResult && (
+                    <div
+                      className={`directory-outcome ${liveResult.directoryCheck.code}`}
+                      data-testid="text-directory-outcome"
+                    >
+                      <strong>{t.directoryResult}</strong>
+                      <p>{t.directoryMessages[liveResult.directoryCheck.code]}</p>
+                    </div>
+                  )}
                   <ul className="reason-list" data-testid="list-result-reasons">
                     {reasons.map((reason, index) => <li key={`${index}-${reason}`}><span className="reason-bullet" aria-hidden="true" />{reason}</li>)}
                   </ul>
-                  {liveResult?.organisationMatch && (
+                  {directoryOrganisation && (
                     <div className="organisation-proof" data-testid="panel-organisation-match">
-                      <strong>{t.directoryTitle}: {liveResult.organisationMatch.name}</strong>
-                      <span dir="ltr">{liveResult.organisationMatch.officialDomain}</span>
-                      <span>{t.verifiedOn}: {liveResult.organisationMatch.dateVerified}</span>
-                      <a href={liveResult.organisationMatch.sourceUrl} target="_blank" rel="noopener noreferrer" dir="ltr" data-testid="link-verification-source">
+                      <strong>{t.directoryTitle}: {directoryOrganisation.name}</strong>
+                      <span>{directoryCategory}</span>
+                      <span dir="ltr">{directoryOrganisation.hostname}</span>
+                      <span>{t.verifiedOn}: {directoryOrganisation.verificationDate}</span>
+                      <a href={directoryOrganisation.sourceUrl} target="_blank" rel="noopener noreferrer" dir="ltr" data-testid="link-verification-source">
                         {t.sourceLabel}
                       </a>
-                      <p>{t.matchSafetyNotice}</p>
+                      {liveResult?.directoryCheck.code === 'exact_match' && <p>{t.matchSafetyNotice}</p>}
                     </div>
                   )}
                 </div>
@@ -386,7 +424,7 @@ function Tarraya() {
               </div>
               <p className="result-disclaimer" data-testid="text-disclaimer">
                 {currentDemo ? <><strong>{t.demoOnly}</strong> </> : null}{t.disclaimer}
-                {liveResult?.organisationMatch && <> {t.matchSafetyNotice}</>}
+                {liveResult?.directoryCheck.code === 'exact_match' && <> {t.matchSafetyNotice}</>}
               </p>
               <div className="result-actions">
                 <button className="secondary-button" type="button" onClick={resetForm} data-testid="button-check-another">

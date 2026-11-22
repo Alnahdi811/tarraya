@@ -74,8 +74,12 @@ export interface DirectoryOrganisation {
   verificationDate: string;
 }
 
+/**
+ * Exact hostname comparison for the single listed organisation identified in the message, if any.
+ */
 export interface DirectoryCheck {
   code: DirectoryCheckCode;
+  /** Localized result text for the hostname comparison. */
   message: string;
   organisation: DirectoryOrganisation | null;
 }

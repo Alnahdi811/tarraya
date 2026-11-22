@@ -1,24 +1,23 @@
 # Organisation directories
 
-Edit `verified-organisations.ts` to maintain the live verified organisation
-directory. Each record must include:
+Edit `official-domains.json` to maintain the live directory. It is located at
+`artifacts/api-server/src/data/official-domains.json`. Each record must include:
 
 - `name` — the organisation's name.
-- `officialDomains` — verified organisation-controlled root domains, without a
-  scheme or path. Public-suffix-aware matching supports certain explicitly
-  delegated namespaces (for example, a verified `service.gov.uk` host); include
-  one only when the source confirms that exact domain belongs to the
-  organisation.
+- `category` — a short label such as `bank`, `courier`, or `postal_service`.
+- `hostname` — the exact verified hostname, without a scheme or path. Include
+  `www` when it is part of the verified hostname. Other hosts or subdomains are
+  not accepted unless they are separately verified and added.
 - `sourceUrl` — an HTTPS URL to the official source used to confirm ownership.
-- `dateVerified` — the date that source and domain were last checked, as
+- `verificationDate` — the date that source and hostname were last checked, as
   `YYYY-MM-DD`.
 
-The analyzer compares domains with the Public Suffix List, including private
-hosting suffixes so separate tenants are not treated as one organisation. Use
-an organisation-controlled root domain, never a shared public suffix or a
-third-party hosting provider's shared root. Re-check records and update
-`dateVerified` whenever the source is reviewed. The server does not fetch the
-source or automatically refresh this directory.
+The checker identifies a listed organisation only when its name (or an
+abbreviation in parentheses in that name) appears in the message, then compares
+the parsed URL hostname exactly with that organisation's `hostname`. A domain
+or subdomain match is not inferred. The source URL is shown in results whenever
+the message identifies a listed organisation, including when its hostname does
+not match. The server does not fetch submitted URLs or source pages.
 
 Do not put fictional or demonstration entries in the verified list. They belong
 in `demo-organisations.ts`, which is kept separate and is not used for live

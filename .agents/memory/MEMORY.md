@@ -1,1 +1,1 @@
-- [Public-suffix organisation matching](public-suffix-organisation-matching.md) — Support delegated government domains without matching shared hosting suffixes or deceptive lookalikes.
+- [Exact hostname organisation matching](exact-hostname-organisation-matching.md) — Identify the organisation from the message and compare its explicitly verified hostname exactly.

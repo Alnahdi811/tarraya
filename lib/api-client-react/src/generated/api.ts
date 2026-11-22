@@ -169,7 +169,7 @@ export const getCheckLinkUrl = () => {
 }
 
 /**
- * Validates and analyzes URL text and optional message wording, and compares the hostname with the curated verified organisation directory. It never visits the submitted URL.
+ * Validates URL text and optional message wording, identifies a listed organisation named in the message, and compares the parsed hostname exactly with that organisation's verified hostname. It never visits the submitted URL.
  * @summary Check a URL without opening it
  */
 export const checkLink = async (linkCheckInput: LinkCheckInput, options?: Parameters<typeof customFetch>[1]): Promise<LinkCheckResult> => {

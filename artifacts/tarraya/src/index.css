@@ -216,6 +216,16 @@
 .demo-stamp { flex:0 0 auto; padding:8px 12px; border:1px solid #d8b86e; border-radius:999px; background:#fff9e8; color:#795e1c; font-size:12px; font-weight:700; }
 .result-body { display:grid; grid-template-columns:1fr 1fr; gap:34px; padding:27px 30px 30px; }
 .result-column h3 { display:flex; align-items:center; gap:9px; margin:0 0 14px; color:#193543; font-size:15px; }
+.submitted-link { margin:0 0 14px; color:#68777a; font-size:12px; line-height:1.6; }
+.submitted-link strong { display:block; color:#42565c; }
+.submitted-link bdi { display:block; color:#193543; overflow-wrap:anywhere; word-break:break-word; }
+.directory-outcome { margin:0 0 15px; padding:13px 15px; border-inline-start:3px solid #58aa8d; border-radius:0 10px 10px 0; background:#edf7f1; color:#38574c; font-size:13px; line-height:1.6; }
+.directory-outcome strong { color:#193f32; }
+.directory-outcome p { margin:3px 0 0; }
+.directory-outcome.hostname_not_listed { border-color:#d2a557; background:#fff8e8; color:#765b27; }
+.directory-outcome.hostname_not_listed strong { color:#624a1d; }
+.directory-outcome.insufficient_information { border-color:#aebbb6; background:#f2f4f1; color:#586764; }
+.directory-outcome.insufficient_information strong { color:#394a48; }
 .reason-list { display:grid; gap:11px; margin:0; padding:0; list-style:none; }
 .reason-list li { display:flex; gap:10px; color:#506267; font-size:14px; line-height:1.65; }
 .reason-bullet { flex:0 0 7px; width:7px; height:7px; margin-top:8px; border-radius:50%; background:#56ad91; }
