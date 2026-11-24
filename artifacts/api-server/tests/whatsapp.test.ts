@@ -12,6 +12,7 @@ import { createWhatsappProcessor } from "../src/lib/whatsapp-worker";
 import { analyzeDomainLink } from "../src/lib/link-analysis";
 import { extractUrls, formatWhatsappResult, messageLanguage } from "../src/lib/whatsapp-message";
 import { normalizeWhatsappSender } from "../src/lib/whatsapp-config";
+import { safeTwilioErrorDetails } from "../src/lib/twilio-error";
 
 // Synthetic credentials are used only to sign local test requests. No Twilio or AI calls.
 const config = {
@@ -95,6 +96,18 @@ test("signed webhooks use canonical HTTPS, reject tampering, acknowledge once an
     const modified = fields("https://notice.example/");
     modified.AccountSid = `AC${"2".repeat(32)}`;
     assert.equal((await post(modified)).status, 403);
+    const helloInput = fields("Hello");
+    const hello = await post(helloInput);
+    assert.equal(hello.status, 200);
+    assert.match(hello.headers.get("content-type")!, /^text\/xml;\s*charset=utf-8/i);
+    assert.equal(await hello.text(),
+      '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Send one link starting with https:// or http:// to check it. Do not send passwords or private details.</Message></Response>');
+    assert.equal(queued.length, 1, "Hello must not queue AI analysis or a separate API send");
+    assert.equal(wakes, 1, "Hello must not wake the outbound worker");
+    const repeatedHello = await post(helloInput);
+    assert.equal(await repeatedHello.text(), '<?xml version="1.0" encoding="UTF-8"?><Response/>');
+    const helloAgain = await post(fields("Hello"));
+    assert.match(await helloAgain.text(), /<Message>Send one link/);
     assert.match(await (await post(fields("مرحبا"))).text(), /أرسل رابطاً/);
     assert.match(await (await post(fields("Two links https://one.example/ https://two.example/"))).text(), /More than one link/);
     assert.match(await (await post(fields("افحص ftp://notice.example/"))).text(), /رابطاً صالحاً/);
@@ -161,6 +174,16 @@ test("ambiguous outbound failures are recorded without automatic resend", async 
   await processor();
   assert.equal(sends, 1);
   assert.equal(state, "delivery_unknown");
+});
+
+test("Twilio diagnostics include only numeric error code and HTTP status", () => {
+  assert.deepEqual(safeTwilioErrorDetails({
+    code: 63016, status: 400, message: "must not be logged",
+    authToken: "must-not-appear", to: "private-number", body: "private-message",
+  }), {twilioErrorCode:63016, httpStatus:400});
+  assert.deepEqual(safeTwilioErrorDetails({code:"secret-string",status:"400"}), {});
+  assert.deepEqual(safeTwilioErrorDetails(null), {});
+  assert.deepEqual(safeTwilioErrorDetails(new Error("private details")), {});
 });
 
 test("analysis failures produce localized safe guidance rather than losing the reply", async () => {

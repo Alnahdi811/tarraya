@@ -82,6 +82,15 @@ pnpm --filter @workspace/db run push
 - `MessageSid` is a PostgreSQL primary key, not an in-memory cache. Duplicate
   webhooks return empty TwiML without analysis or another reply. Identifier-only
   receipts remain indefinitely to prevent replay after payload cleanup.
+- A fresh signed `Body=Hello` request returns `text/xml; charset=utf-8` containing
+  `<Response><Message>Send one link starting with https:// or http:// to check it.
+  Do not send passwords or private details.</Message></Response>`. It does not
+  queue analysis or use the outbound API. Reusing its MessageSid returns empty
+  TwiML intentionally; a genuinely new message has a new MessageSid.
+- Request logs identify `whatsappReplyKind` (`request_link`, `duplicate_ignored`,
+  `analysis_queued`, `multiple_links`, `invalid_link`, or `rate_limit`) and
+  `twimlHasMessage`, without message text, sender or credentials. A 200 response
+  alone does not prove Twilio delivered a WhatsApp reply.
 - At most five accepted analyses per sender per minute are queued. Quota keys are
   HMACs, not raw phone numbers, and are removed after their one-minute quota window.
   Database row locking prevents concurrent workers
@@ -91,6 +100,8 @@ pnpm --filter @workspace/db run push
   If a send times out or the process dies after submitting it, delivery can be
   ambiguous. Mark it `delivery_unknown`, check Twilio Messaging logs, and do not
   automatically resend: Twilio message creation offers no exactly-once guarantee.
+  Failed outbound calls log only numeric `twilioErrorCode` and `httpStatus`
+  when supplied by the SDK, never the SDK error object or its message.
   `sent` here means Twilio accepted the API request, not confirmed handset delivery.
 - Message text and submitted URL are stored only for pending analysis, removed
   when its reply is prepared, and expired after 24 hours if not processed.

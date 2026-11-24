@@ -77,6 +77,15 @@ export function createWhatsappRouter(deps: {
       }
       if (state === "duplicate") reply = "";
       if (state === "limited") reply = copy.limited;
+      const replyKind = state === "duplicate" ? "duplicate_ignored"
+        : state === "limited" ? "rate_limit"
+        : urls.length === 0 ? "request_link"
+        : urls.length > 1 ? "multiple_links"
+        : url ? "analysis_queued" : "invalid_link";
+      req.log?.info({
+        whatsappReplyKind: replyKind,
+        twimlHasMessage: reply.length > 0,
+      }, "WhatsApp webhook response prepared.");
       res.type("text/xml").send(twiml(reply));
       if (state === "accepted" && url) {
         setImmediate(deps.wake ?? (() => { void processWhatsappJobs(); }));

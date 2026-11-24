@@ -5,6 +5,7 @@ import { analyzeLink } from "./link-analysis-service";
 import { formatWhatsappResult, whatsappCopy } from "./whatsapp-message";
 import { claimAnalysis, claimDelivery, finishDelivery, recoverJobs, saveReply } from "./whatsapp-store";
 import { logger } from "./logger";
+import { safeTwilioErrorDetails } from "./twilio-error";
 
 let timer: ReturnType<typeof setInterval> | undefined;
 
@@ -52,9 +53,12 @@ export function createWhatsappProcessor(overrides: Partial<typeof workerDependen
         // Retries are disabled: an ambiguous timeout must not send a second message.
         await deps.send(config, delivery);
         await deps.finishDelivery(delivery.sid, "sent");
-      } catch {
+      } catch (error) {
+        logger.error(
+          safeTwilioErrorDetails(error),
+          "WhatsApp delivery failed or is uncertain; automatic resend suppressed. Check Twilio Messaging logs.",
+        );
         await deps.finishDelivery(delivery.sid, "delivery_unknown");
-        logger.error("WhatsApp delivery failed or is uncertain; automatic resend suppressed. Check Twilio Messaging logs.");
       }
     }
   } catch {
