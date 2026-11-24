@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "test:directory": "tsx --test tests/link-analysis.test.ts",
     "test:whatsapp": "tsx --test tests/whatsapp.test.ts",
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",

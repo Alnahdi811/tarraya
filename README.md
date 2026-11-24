@@ -92,8 +92,13 @@ lib/integrations-openai-ai-server/      Server-only managed OpenAI client
 The live directory is
 [`artifacts/api-server/src/data/official-domains.json`](artifacts/api-server/src/data/official-domains.json).
 It contains organisation name, category, hostname, official source URL and
-verification date. These four records were supplied for this project with the
-recorded verification date **2026-11-23**:
+verification date. The directory contains **23 records** supplied for this project:
+the original four are dated **2026-11-23** and the 19 additions from the supplied
+UAE directory patch are dated **2026-11-24**. Each also has Arabic aliases for
+identifying the organisation named in a message; aliases do not authorise extra
+hostnames.
+
+The original records are:
 
 | Organisation | Exact listed hostname | Recorded official source |
 | --- | --- | --- |
@@ -101,6 +106,13 @@ recorded verification date **2026-11-23**:
 | Emirates NBD | `www.emiratesnbd.com` | [Emirates NBD](https://www.emiratesnbd.com/en) |
 | Aramex | `www.aramex.com` | [Aramex tracking](https://www.aramex.com/ae/en/track/shipments) |
 | Emirates Post | `www.emiratespost.ae` | [Emirates Post tracking](https://www.emiratespost.ae/all-services/track-a-package) |
+
+The additions cover TAQA Distribution, DEWA, SEWA, EtihadWE, Abu Dhabi Police,
+Dubai Police, UAE Ministry of Interior, TAMM, G42, ADCB, ADIB, Dubai Islamic Bank,
+Emirates Islamic, DHL, FedEx, Talabat, Careem, Deliveroo and the UAE Government
+Portal. Their exact hostnames, source URLs, aliases and dates are in the JSON
+directory linked above. These are supplied directory records, not claims of
+independent re-verification during patch application.
 
 The recorded date is directory metadata, not proof of continuous or automated
 verification. No source page is fetched during a check. The directory is not a
@@ -318,10 +330,12 @@ curl -i http://localhost:8080/api/whatsapp \
 Use the same exported `.env` and dedicated development database:
 
 ```bash
-pnpm --filter @workspace/api-server run test:whatsapp
+pnpm --filter @workspace/api-server run test
 ```
 
-The test suite covers signed webhook requests, the exact XML “Hello” prompt,
+The test suite covers all 23 directory records, Arabic aliases, exact-host-only
+matching, rejected www/apex/subdomain variants, ambiguous names, fictional
+`.example` mismatches, signed webhook requests, the exact XML “Hello” prompt,
 duplicate protection, URL counts, language selection, slow analysis,
 AI-unavailable guidance, numeric-only error diagnostics and persistent queue
 limits. It uses synthetic credentials, reserved `.example` URLs, mocked AI/send

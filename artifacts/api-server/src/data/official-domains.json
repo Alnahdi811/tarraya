@@ -4,27 +4,183 @@
     "category": "bank",
     "hostname": "www.bankfab.com",
     "sourceUrl": "https://www.bankfab.com/en-ae/personal",
-    "verificationDate": "2026-11-23"
+    "verificationDate": "2026-11-23",
+    "aliases": ["بنك أبوظبي الأول"]
   },
   {
     "name": "Emirates NBD",
     "category": "bank",
     "hostname": "www.emiratesnbd.com",
     "sourceUrl": "https://www.emiratesnbd.com/en",
-    "verificationDate": "2026-11-23"
+    "verificationDate": "2026-11-23",
+    "aliases": ["بنك الإمارات دبي الوطني", "الإمارات دبي الوطني"]
   },
   {
     "name": "Aramex",
     "category": "courier",
     "hostname": "www.aramex.com",
     "sourceUrl": "https://www.aramex.com/ae/en/track/shipments",
-    "verificationDate": "2026-11-23"
+    "verificationDate": "2026-11-23",
+    "aliases": ["أرامكس", "ارامكس"]
   },
   {
     "name": "Emirates Post",
     "category": "postal_service",
     "hostname": "www.emiratespost.ae",
     "sourceUrl": "https://www.emiratespost.ae/all-services/track-a-package",
-    "verificationDate": "2026-11-23"
+    "verificationDate": "2026-11-23",
+    "aliases": ["بريد الإمارات", "بريد الامارات"]
+  },
+  {
+    "name": "TAQA Distribution",
+    "category": "utility",
+    "hostname": "taqadistribution.com",
+    "sourceUrl": "https://taqadistribution.com/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["طاقة للتوزيع"]
+  },
+  {
+    "name": "Dubai Electricity and Water Authority (DEWA)",
+    "category": "utility",
+    "hostname": "www.dewa.gov.ae",
+    "sourceUrl": "https://www.dewa.gov.ae/en/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["ديوا", "هيئة كهرباء ومياه دبي"]
+  },
+  {
+    "name": "Sharjah Electricity Water and Gas Authority (SEWA)",
+    "category": "utility",
+    "hostname": "www.sewa.gov.ae",
+    "sourceUrl": "https://www.sewa.gov.ae/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["سيوا", "هيئة كهرباء ومياه وغاز الشارقة"]
+  },
+  {
+    "name": "Etihad Water and Electricity (EtihadWE)",
+    "category": "utility",
+    "hostname": "etihadwe.ae",
+    "sourceUrl": "https://etihadwe.ae/en/ContactUs/Pages/Offices.aspx",
+    "verificationDate": "2026-11-24",
+    "aliases": ["الاتحاد للماء والكهرباء"]
+  },
+  {
+    "name": "Abu Dhabi Police",
+    "category": "police",
+    "hostname": "www.adpolice.gov.ae",
+    "sourceUrl": "https://www.adpolice.gov.ae/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["شرطة أبوظبي", "شرطة أبو ظبي", "شرطة ابوظبي"]
+  },
+  {
+    "name": "Dubai Police",
+    "category": "police",
+    "hostname": "www.dubaipolice.gov.ae",
+    "sourceUrl": "https://www.dubaipolice.gov.ae/app/home",
+    "verificationDate": "2026-11-24",
+    "aliases": ["شرطة دبي"]
+  },
+  {
+    "name": "UAE Ministry of Interior",
+    "category": "government",
+    "hostname": "www.moi.gov.ae",
+    "sourceUrl": "https://www.moi.gov.ae/home",
+    "verificationDate": "2026-11-24",
+    "aliases": ["وزارة الداخلية"]
+  },
+  {
+    "name": "TAMM",
+    "category": "government",
+    "hostname": "www.tamm.abudhabi",
+    "sourceUrl": "https://www.tamm.abudhabi/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["منصة تم", "تطبيق تم"]
+  },
+  {
+    "name": "G42",
+    "category": "technology",
+    "hostname": "www.g42.ai",
+    "sourceUrl": "https://www.g42.ai/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["جي 42", "جي ٤٢"]
+  },
+  {
+    "name": "Abu Dhabi Commercial Bank (ADCB)",
+    "category": "bank",
+    "hostname": "www.adcb.com",
+    "sourceUrl": "https://www.adcb.com/en/about-email-fraud.aspx",
+    "verificationDate": "2026-11-24",
+    "aliases": ["بنك أبوظبي التجاري"]
+  },
+  {
+    "name": "Abu Dhabi Islamic Bank (ADIB)",
+    "category": "bank",
+    "hostname": "www.adib.ae",
+    "sourceUrl": "https://www.adib.ae/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["مصرف أبوظبي الإسلامي"]
+  },
+  {
+    "name": "Dubai Islamic Bank (DIB)",
+    "category": "bank",
+    "hostname": "www.dib.ae",
+    "sourceUrl": "https://www.dib.ae/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["بنك دبي الإسلامي"]
+  },
+  {
+    "name": "Emirates Islamic",
+    "category": "bank",
+    "hostname": "www.emiratesislamic.ae",
+    "sourceUrl": "https://www.emiratesislamic.ae/en/welcome",
+    "verificationDate": "2026-11-24",
+    "aliases": ["الإمارات الإسلامي", "مصرف الإمارات الإسلامي"]
+  },
+  {
+    "name": "DHL",
+    "category": "courier",
+    "hostname": "www.dhl.com",
+    "sourceUrl": "https://www.dhl.com/ae-en/home/footer/fraud-awareness.html",
+    "verificationDate": "2026-11-24",
+    "aliases": ["دي إتش إل"]
+  },
+  {
+    "name": "FedEx",
+    "category": "courier",
+    "hostname": "www.fedex.com",
+    "sourceUrl": "https://www.fedex.com/content/dam/fedex/international/guides/fedex-meisa-self-service-guide-en-ae.pdf",
+    "verificationDate": "2026-11-24",
+    "aliases": ["فيديكس"]
+  },
+  {
+    "name": "Talabat",
+    "category": "delivery",
+    "hostname": "www.talabat.com",
+    "sourceUrl": "https://www.talabat.com/uae",
+    "verificationDate": "2026-11-24",
+    "aliases": ["تطبيق طلبات", "شركة طلبات"]
+  },
+  {
+    "name": "Careem",
+    "category": "delivery",
+    "hostname": "www.careem.com",
+    "sourceUrl": "https://www.careem.com/en-ae/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["تطبيق كريم", "كريم فود"]
+  },
+  {
+    "name": "Deliveroo",
+    "category": "delivery",
+    "hostname": "deliveroo.ae",
+    "sourceUrl": "https://deliveroo.ae/",
+    "verificationDate": "2026-11-24",
+    "aliases": ["ديليفرو", "دليفرو"]
+  },
+  {
+    "name": "UAE Government Portal",
+    "category": "government",
+    "hostname": "u.ae",
+    "sourceUrl": "https://u.ae/en/footer/about-this-portal",
+    "verificationDate": "2026-11-24",
+    "aliases": ["البوابة الرسمية لحكومة الإمارات"]
   }
 ]

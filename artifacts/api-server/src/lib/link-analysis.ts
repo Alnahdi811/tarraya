@@ -190,6 +190,7 @@ function messageNamesOrganisation(
     organisation.name,
     organisation.name.replace(/\s*\([^)]*\)/g, "").trim(),
     ...parentheticalNames,
+    ...(organisation.aliases ?? []),
   ].filter(Boolean);
   const normalizedMessage = message.normalize("NFKC");
 
