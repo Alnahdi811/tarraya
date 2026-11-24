@@ -1,5 +1,10 @@
 # Tarraya server and WhatsApp Sandbox
 
+**Hackathon status:** the web checker is the demo. Twilio inbound webhook
+requests reached the app, but live WhatsApp replies were not confirmed.
+The production sender is pending Meta business verification. See the
+[root README](../../README.md) for the complete submission and fresh-clone setup.
+
 ## Twilio setup
 
 The webhook URL, confirmed from this project's published deployment, is:

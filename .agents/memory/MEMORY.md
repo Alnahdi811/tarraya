@@ -1,1 +1,2 @@
 - [Exact hostname organisation matching](exact-hostname-organisation-matching.md) — Identify the organisation from the message and compare its explicitly verified hostname exactly.
+- [Hackathon submission scope](hackathon-submission-status.md) — The web checker is the demo; WhatsApp replies are unconfirmed and production sender verification is pending.

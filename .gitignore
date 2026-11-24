@@ -53,3 +53,24 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Secrets and machine-local configuration (keep the safe template)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Runtime output, private exports, database backups and generated checks
+*.log
+logs/
+backups/
+*.dump
+*.sql.gz
+coverage/
+test-results/
+playwright-report/
+/generated-artifacts/
+/data/private/

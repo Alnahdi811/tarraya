@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "gAg0jbutbcUzxzyz3MUAq"
+uri = "file://README.md"
+type = "text"
+title = "Tarraya hackathon submission README"
+description = "Architecture, actual demo status, privacy, limitations, verified setup commands, fictional examples, and master-branch GitHub push steps."
+logical_id = "7ae7b12c-b986-40d4-bf64-0bfeb23e8c9e"
+content_hash = "sha256:24e9d5096d451f068b416c56ffb35f67e7792d661bc7edda43f842ec8e4ac2ed"
+size = 20476
+mtime_ms = 1795539651368
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:050c9859-5349-4b3e-93aa-47d9e10b7fa4/7ae7b12c-b986-40d4-bf64-0bfeb23e8c9e/3ad3111c-cfae-43fe-906a-e967b1be0a5c"
+storage_version_token = "1795539881205681"
+content_type = "text/markdown"
